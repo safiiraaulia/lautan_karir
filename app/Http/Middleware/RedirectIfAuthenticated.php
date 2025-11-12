@@ -17,15 +17,29 @@ class RedirectIfAuthenticated
      * @return mixed
      */
     public function handle($request, Closure $next, ...$guards)
-    {
-        $guards = empty($guards) ? [null] : $guards;
+{
+    $guards = empty($guards) ? [null] : $guards;
 
-        foreach ($guards as $guard) {
-            if (Auth::guard($guard)->check()) {
-                return redirect(RouteServiceProvider::HOME);
+    foreach ($guards as $guard) {
+        if (Auth::guard($guard)->check()) {
+
+            $user = Auth::guard($guard)->user();
+
+            // SUPER ADMIN & HR
+            if ($user->role === 'SUPER_ADMIN' || $user->role === 'HR_PUSAT') {
+                return redirect('/admin/dashboard');
             }
-        }
 
-        return $next($request);
+            // PELAMAR
+            if ($user->role === 'PELAMAR') {
+                return redirect('/pelamar/dashboard');
+            }
+
+            // Default fallback
+            return redirect('/admin/login');
+        }
     }
+
+    return $next($request);
+}
 }
