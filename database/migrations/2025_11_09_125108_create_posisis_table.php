@@ -12,13 +12,17 @@ class CreatePosisisTable extends Migration
      * @return void
      */
    public function up()
-    {
-        Schema::create('posisi', function (Blueprint $table) {
-            $table->id('id_posisi'); 
-            $table->string('nama_posisi');
-            $table->timestamps();
-        });
-    }
+{
+    Schema::create('posisi', function (Blueprint $table) {
+        $table->string('kode_posisi', 10)->primary();
+        $table->string('nama_posisi');
+        $table->string('level')->nullable(); // Staff / Supervisor / Manager
+        $table->boolean('is_active')->default(true);
+        $table->timestamps();
+        $table->softDeletes();
+    });
+}
+
 
     /**
      * Reverse the migrations.

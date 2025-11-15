@@ -8,65 +8,49 @@ use Illuminate\Support\Facades\Auth;
 
 class AdminLoginController extends Controller
 {
-    /**
-     * Constructor
-     */
     public function __construct()
     {
-        // Redirect jika sudah login
-        $this->middleware('guest:web')->except('logout');
+        $this->middleware('guest:admin')->except('logout');
     }
 
-    /**
-     * Tampilkan form login admin
-     */
     public function showLoginForm()
     {
         return view('auth.admin-login');
     }
 
-    /**
-     * Proses login admin
-     */
     public function login(Request $request)
     {
-        // Validasi input
         $request->validate([
             'username' => 'required|string',
             'password' => 'required|string',
         ]);
 
-        // Coba login dengan guard 'web'
         $credentials = $request->only('username', 'password');
 
-        if (Auth::guard('web')->attempt($credentials, $request->filled('remember'))) {
-            // Login berhasil
+        // ✅ Login pakai guard ADMIN, bukan WEB
+        if (Auth::guard('admin')->attempt($credentials, $request->filled('remember'))) {
+
             $request->session()->regenerate();
-            
-            // Redirect berdasarkan role
-            $user = Auth::guard('web')->user();
-            
-            if ($user->role === 'SUPER_ADMIN' || $user->role === 'HR_PUSAT') {
+
+            $user = Auth::guard('admin')->user();
+
+            // ✅ Hanya SUPER_ADMIN & HR_PUSAT
+            if (in_array($user->role, ['SUPER_ADMIN', 'HR_PUSAT'])) {
                 return redirect()->intended('/admin/dashboard');
             }
-            
-            // Jika role tidak dikenal, logout
-            Auth::guard('web')->logout();
+
+            Auth::guard('admin')->logout();
             return back()->withErrors(['username' => 'Role tidak valid.']);
         }
 
-        // Login gagal
         return back()->withErrors([
             'username' => 'Username atau password salah.',
         ])->onlyInput('username');
     }
 
-    /**
-     * Logout admin
-     */
     public function logout(Request $request)
     {
-        Auth::guard('web')->logout();
+        Auth::guard('admin')->logout();
 
         $request->session()->invalidate();
         $request->session()->regenerateToken();

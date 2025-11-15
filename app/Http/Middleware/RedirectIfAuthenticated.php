@@ -31,7 +31,7 @@ class RedirectIfAuthenticated
             }
 
             // PELAMAR
-            if ($user->role === 'PELAMAR') {
+            if ($user->role === 'pelamar') {
                 return redirect('/pelamar/dashboard');
             }
 
