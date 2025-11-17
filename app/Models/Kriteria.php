@@ -13,26 +13,39 @@ class Kriteria extends Model
     public $timestamps = false;
 
     /**
-     * Relasi: Satu Kriteria bisa ada di Banyak Posisi (via tabel pivot)
+     * ======================================================
+     * == TAMBAHKAN INI UNTUK MEMPERBAIKI ERROR ==
+     * ======================================================
+     *
+     * Kolom yang boleh diisi secara massal.
+     * (Sesuai migrasi ...create_kriterias_table.php)
+     */
+    protected $fillable = [
+        'nama_kriteria',
+        'jenis',
+        'bobot_saw' // <-- Kita biarkan saja dulu
+    ];
+    // ======================================================
+
+
+    /**
+     * Relasi: Kriteria bisa ada di banyak Posisi
      */
     public function posisi()
     {
-        return $this->belongsToMany(Posisi::class, 'kriteria_posisi', 'kriteria_id', 'posisi_id');
+        return $this->belongsToMany(
+            Posisi::class, 
+            'kriteria_posisi', 
+            'kriteria_id', 
+            'posisi_id'
+        );
     }
 
     /**
-     * Relasi: Satu Kriteria memiliki Banyak SkalaNilai (opsi)
+     * Relasi: Kriteria punya banyak Skala Nilai
      */
     public function skalaNilai()
     {
         return $this->hasMany(SkalaNilai::class, 'kriteria_id', 'id_kriteria');
-    }
-
-    /**
-     * Relasi: Satu Kriteria memiliki Banyak Jawaban Administrasi
-     */
-    public function jawabanAdministrasi()
-    {
-        return $this->hasMany(JawabanAdministrasi::class, 'kriteria_id', 'id_kriteria');
     }
 }

@@ -11,16 +11,32 @@ class CreateSkalaNilaisTable extends Migration
      *
      * @return void
      */
-   public function up()
+    public function up()
     {
         Schema::create('skala_nilai', function (Blueprint $table) {
-            $table->id(); // Sesuai brief
-            $table->unsignedBigInteger('kriteria_id');
-            $table->string('pilihan_kualitatif');
-            $table->integer('nilai_kuantitatif');
+            $table->bigIncrements('id_skala'); // <-- Sudah benar (auto-increment)
 
-            $table->foreign('kriteria_id')->references('id_kriteria')->on('kriteria')->onDelete('cascade');
-            $table->timestamps();
+            // === PERUBAHAN DIMULAI DI SINI ===
+
+            // 1. Tambahkan kolom posisi_id (tipe STRING)
+            $table->string('posisi_id', 10); 
+
+            $table->unsignedBigInteger('kriteria_id');
+            $table->string('deskripsi');
+            $table->integer('nilai');
+
+            // 2. Tambahkan Foreign Key untuk posisi_id
+            $table->foreign('posisi_id')
+                  ->references('kode_posisi') // <-- Referensi ke kode_posisi
+                  ->on('posisi') // <-- di tabel posisi
+                  ->onDelete('cascade');
+
+            // === BATAS PERUBAHAN ===
+
+            $table->foreign('kriteria_id')
+                  ->references('id_kriteria')
+                  ->on('kriteria')
+                  ->onDelete('cascade');
         });
     }
 
@@ -31,6 +47,6 @@ class CreateSkalaNilaisTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('skala_nilais');
+        Schema::dropIfExists('skala_nilai');
     }
 }

@@ -4,6 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
+// Pastikan nama class ini juga benar
 class CreateKriteriasTable extends Migration
 {
     /**
@@ -14,9 +15,13 @@ class CreateKriteriasTable extends Migration
     public function up()
     {
         Schema::create('kriteria', function (Blueprint $table) {
-            $table->id('id_kriteria');
+            $table->bigIncrements('id_kriteria');
             $table->string('nama_kriteria');
-            $table->timestamps();
+
+            // --- INI ADALAH KOLOM YANG HILANG ---
+            $table->enum('jenis', ['Benefit', 'Cost']);
+            $table->float('bobot_saw'); // (Kita sepakat biarkan ini, tipe float)
+            // -------------------------------------
         });
     }
 
@@ -27,6 +32,6 @@ class CreateKriteriasTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('kriterias');
+        Schema::dropIfExists('kriteria');
     }
 }

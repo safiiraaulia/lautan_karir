@@ -25,7 +25,11 @@ class AdminLoginController extends Controller
             'password' => 'required|string',
         ]);
 
-        $credentials = $request->only('username', 'password');
+        $credentials = [
+            'username' => $request->username,
+            'password' => $request->password,
+            'is_active' => true, 
+        ];
 
         // ✅ Login pakai guard ADMIN, bukan WEB
         if (Auth::guard('admin')->attempt($credentials, $request->filled('remember'))) {
@@ -34,8 +38,8 @@ class AdminLoginController extends Controller
 
             $user = Auth::guard('admin')->user();
 
-            // ✅ Hanya SUPER_ADMIN & HR_PUSAT
-            if (in_array($user->role, ['SUPER_ADMIN', 'HR_PUSAT'])) {
+            // ✅ Hanya SUPER_ADMIN & HRD
+            if (in_array($user->role, ['SUPER_ADMIN', 'HRD'])) {
                 return redirect()->intended('/admin/dashboard');
             }
 

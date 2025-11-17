@@ -14,14 +14,20 @@ class CreateAdminsTable extends Migration
     public function up()
     {
         Schema::create('admins', function (Blueprint $table) {
-            $table->id();
+            // Gunakan id_admin agar konsisten
+            $table->id('id_admin'); 
             $table->string('username')->unique();
             $table->string('password');
-            // $table->string('name')->nullable(); // optional
+            
+           
+            $table->enum('role', ['SUPER_ADMIN', 'HRD']);
+            $table->boolean('is_active')->default(true);
+            // ===================================
+            
+            $table->rememberToken();
             $table->timestamps();
         });
     }
-
 
     /**
      * Reverse the migrations.

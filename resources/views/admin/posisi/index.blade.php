@@ -20,45 +20,45 @@
             <table class="table table-bordered table-striped">
                 <thead class="table-dark">
                     <tr>
-                        <th>ID</th>
+                        <th>Kode Posisi</th>
                         <th>Nama Posisi</th>
                         <th>Level</th>
-                        <th width="150">Aksi</th>
+                        <th width="240">Aksi</th> 
                     </tr>
                 </thead>
 
                 <tbody>
-                    @foreach ($posisi as $row)
+                    @foreach ($posisis as $row)
                         <tr>
-                            <td>{{ $row->id_posisi }}</td>
+                            <td>{{ $row->kode_posisi }}</td>
                             <td>{{ $row->nama_posisi }}</td>
                             <td>{{ $row->level ?? '-' }}</td>
 
                             <td>
-                                <a href="{{ route('admin.posisi.edit', $row->id_posisi) }}"
-                                   class="btn btn-warning btn-sm">Edit</a>
+                                <a href="{{ route('admin.posisi.setupSaw', $row->kode_posisi) }}"
+                                   class="btn btn-info btn-sm me-1">
+                                   Atur Kriteria
+                                </a>
 
-                                <form action="{{ route('admin.posisi.destroy', $row->id_posisi) }}"
+                                <a href="{{ route('admin.posisi.edit', $row->kode_posisi) }}"
+                                   class="btn btn-warning btn-sm me-1">Info</a>
+
+                                <form action="{{ route('admin.posisi.destroy', $row->kode_posisi) }}"
                                       method="POST"
                                       class="d-inline"
                                       onsubmit="return confirm('Yakin ingin menghapus posisi ini?')">
-
                                     @csrf
                                     @method('DELETE')
-
                                     <button class="btn btn-danger btn-sm">
                                         Hapus
                                     </button>
                                 </form>
                             </td>
-                        </tr>
+                            </tr>
                     @endforeach
                 </tbody>
-
             </table>
-
         </div>
     </div>
-
 </div>
 @endsection

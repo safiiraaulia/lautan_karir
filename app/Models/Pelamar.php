@@ -20,7 +20,14 @@ class Pelamar extends Authenticatable
         'email',
         'nomor_whatsapp',
         'password',
-        'is_active', // Ditambahkan dari migrasi terakhir
+        'is_active', 
+        'no_ktp',
+        'foto', 
+        'path_ktp', 
+        'path_cv', 
+        'path_ijazah', 
+        'path_kk', 
+        'path_lamaran'
     ];
 
     protected $hidden = [

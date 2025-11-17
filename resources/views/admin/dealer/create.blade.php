@@ -1,42 +1,54 @@
-@extends('admin.layout')
+@extends('layouts.admin')
 
 @section('content')
 <div class="container mt-4">
+    <h3>Tambah Master Dealer</h3>
 
-    <h3>Tambah Dealer</h3>
-
-    <div class="card mt-3">
+    <div class="card">
         <div class="card-body">
-
             <form action="{{ route('admin.dealer.store') }}" method="POST">
                 @csrf
-
-                <div class="mb-3">
-                    <label>Kode Dealer</label>
-                    <input type="text" name="kode_dealer" class="form-control" required>
+                
+                <div class="form-group mb-3">
+                    <label for="kode_dealer">Kode Dealer</label>
+                    <input type="text" class="form-control @error('kode_dealer') is-invalid @enderror" 
+                           id="kode_dealer" name="kode_dealer" value="{{ old('kode_dealer') }}">
+                    @error('kode_dealer')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
                 </div>
 
-                <div class="mb-3">
-                    <label class="form-label">Nama Dealer</label>
-                    <input type="text" name="nama_dealer" class="form-control" required>
+                <div class="form-group mb-3">
+                    <label for="nama_dealer">Nama Dealer</label>
+                    <input type="text" class="form-control @error('nama_dealer') is-invalid @enderror" 
+                           id="nama_dealer" name="nama_dealer" value="{{ old('nama_dealer') }}">
+                    @error('nama_dealer')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
                 </div>
 
-                <div class="mb-3">
-                    <label class="form-label">Kota</label>
-                    <input type="text" name="kota" class="form-control" required>
+                <div class="form-group mb-3">
+                    <label for="kota">Kota</label>
+                    <input type="text" class="form-control @error('kota') is-invalid @enderror" 
+                           id="kota" name="kota" value="{{ old('kota') }}">
+                    @error('kota')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
                 </div>
 
-                <div class="mb-3">
-                    <label class="form-label">Singkatan</label>
-                    <input type="text" name="singkatan" class="form-control" required>
+                <div class="form-group mb-3">
+                    <label for="singkatan">Singkatan</label>
+                    <input type="text" class="form-control @error('singkatan') is-invalid @enderror" 
+                           id="singkatan" name="singkatan" value="{{ old('singkatan') }}">
+                    @error('singkatan')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
                 </div>
 
-                <button class="btn btn-primary">Simpan</button>
-                <a href="{{ route('admin.dealer.index') }}" class="btn btn-secondary">Kembali</a>
+                <button type="submit" class="btn btn-primary">Simpan</button>
+                <a href="{{ route('admin.dealer.index') }}" class="btn btn-secondary">Batal</a>
             </form>
-
         </div>
     </div>
-
 </div>
 @endsection

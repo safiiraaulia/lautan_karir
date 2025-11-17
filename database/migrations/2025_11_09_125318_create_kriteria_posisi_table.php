@@ -4,6 +4,9 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
+// ======================================================
+// == FIX 1: Ganti nama class agar sesuai nama file ==
+// ======================================================
 class CreateKriteriaPosisiTable extends Migration
 {
     /**
@@ -11,18 +14,22 @@ class CreateKriteriaPosisiTable extends Migration
      *
      * @return void
      */
-   public function up()
+    public function up()
     {
         Schema::create('kriteria_posisi', function (Blueprint $table) {
-            $table->unsignedBigInteger('posisi_id');
+            // Ini dari perbaikan kita sebelumnya (sudah benar)
+            $table->string('posisi_id', 10); 
             $table->unsignedBigInteger('kriteria_id');
-            $table->integer('bobot_saw');
 
-            // Foreign Keys
-            $table->foreign('posisi_id')->references('id_posisi')->on('posisi')->onDelete('cascade');
+            // ======================================================
+            // == FIX 2: Ganti 'integer' menjadi 'float' untuk bobot desimal ==
+            // ======================================================
+            $table->float('bobot_saw'); 
+
+            // Foreign keys (sudah benar)
+            $table->foreign('posisi_id')->references('kode_posisi')->on('posisi')->onDelete('cascade');
             $table->foreign('kriteria_id')->references('id_kriteria')->on('kriteria')->onDelete('cascade');
 
-            // Primary key gabungan
             $table->primary(['posisi_id', 'kriteria_id']);
         });
     }
