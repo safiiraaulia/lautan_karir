@@ -42,7 +42,6 @@ class LowonganController extends Controller
         $request->validate([
             'posisi_id' => 'required|exists:posisi,kode_posisi',
             'dealer_id' => 'required|exists:dealer,kode_dealer',
-            'paket_tes_id' => 'required|exists:paket_tes,id_paket_tes',
             'tgl_buka' => 'required|date',
             'tgl_tutup' => 'required|date|after_or_equal:tgl_buka',
             'status' => 'required|in:Buka,Tutup',
@@ -86,7 +85,6 @@ class LowonganController extends Controller
         $request->validate([
             'posisi_id' => 'required|exists:posisi,kode_posisi',
             'dealer_id' => 'required|exists:dealer,kode_dealer',
-            'paket_tes_id' => 'required|exists:paket_tes,id_paket_tes',
             'tgl_buka' => 'required|date',
             'tgl_tutup' => 'required|date|after_or_equal:tgl_buka',
             'status' => 'required|in:Buka,Tutup',

@@ -7,53 +7,50 @@ use App\Models\Pelamar;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
 
 class PelamarRegisterController extends Controller
 {
-    /**
-     * Constructor
-     */
     public function __construct()
     {
-        // Redirect jika sudah login
         $this->middleware('guest:pelamar');
     }
 
-    /**
-     * Tampilkan form register
-     */
     public function showRegistrationForm()
     {
         return view('auth.pelamar-register');
     }
 
-    /**
-     * Proses register
-     */
     public function register(Request $request)
     {
-        // Validasi
-        $request->validate([
-            'nama' => 'required|string|max:255',
-            'username' => 'required|string|max:255|unique:pelamar,username',
-            'email' => 'required|string|email|max:255|unique:pelamar,email',
-            'nomor_whatsapp' => 'required|string|max:20',
-            'password' => 'required|string|min:8|confirmed',
-        ]);
+        $this->validator($request->all())->validate();
 
-        // Buat pelamar baru
-        $pelamar = Pelamar::create([
-            'nama' => $request->nama,
-            'username' => $request->username,
-            'email' => $request->email,
-            'nomor_whatsapp' => $request->nomor_whatsapp,
-            'password' => Hash::make($request->password),
-            'is_active' => true,
-        ]);
+        $pelamar = $this->create($request->all());
 
         // Auto-login setelah register
         Auth::guard('pelamar')->login($pelamar);
 
-        return redirect('/pelamar/dashboard')->with('success', 'Registrasi berhasil! Selamat datang.');
+        return redirect()->route('pelamar.dashboard')->with('success', 'Registrasi berhasil! Silakan lengkapi profil Anda.');
+    }
+
+    protected function validator(array $data)
+    {
+        return Validator::make($data, [
+            'nama' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:pelamar'],
+            'nomor_whatsapp' => ['required', 'string', 'max:15'],
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
+        ]);
+    }
+
+    protected function create(array $data)
+    {
+        return Pelamar::create([
+            'nama' => $data['nama'],
+            'username' => strtolower(str_replace(' ', '', $data['nama'])) . mt_rand(100, 999),            'email' => $data['email'],
+            'nomor_whatsapp' => $data['nomor_whatsapp'],
+            'password' => Hash::make($data['password']),
+            'is_active' => true, // Default aktif
+        ]);
     }
 }

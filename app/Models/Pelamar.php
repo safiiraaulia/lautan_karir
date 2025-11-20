@@ -55,4 +55,22 @@ class Pelamar extends Authenticatable
         // 'id_pelamar' -> Local key (primary key) di tabel 'pelamar'
         return $this->hasMany(Lamaran::class, 'pelamar_id', 'id_pelamar');
     }
+
+    // Relasi ke Tabel Keluarga (Anak)
+    public function keluarga()
+    {
+        return $this->hasMany(PelamarKeluarga::class, 'pelamar_id', 'id_pelamar');
+    }
+
+    // Relasi ke Tabel Pendidikan
+    public function pendidikan()
+    {
+        return $this->hasMany(PelamarPendidikan::class, 'pelamar_id', 'id_pelamar');
+    }
+
+    // Relasi ke Tabel Pekerjaan
+    public function pekerjaan()
+    {
+        return $this->hasMany(PelamarPekerjaan::class, 'pelamar_id', 'id_pelamar');
+    }
 }

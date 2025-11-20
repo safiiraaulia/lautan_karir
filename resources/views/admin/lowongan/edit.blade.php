@@ -44,23 +44,6 @@
                     @enderror
                 </div>
 
-                <div class="form-group mb-3">
-                    <label for="paket_tes_id">Paket Tes Psikotes</label>
-                    <select class="form-control @error('paket_tes_id') is-invalid @enderror" 
-                            id="paket_tes_id" name="paket_tes_id">
-                        <option value="">-- Pilih Paket Tes --</option>
-                        @foreach($paketTes as $paket)
-                            <option value="{{ $paket->id_paket_tes }}" 
-                                    {{ old('paket_tes_id', $lowongan->paket_tes_id) == $paket->id_paket_tes ? 'selected' : '' }}>
-                                {{ $paket->nama_paket }}
-                            </option>
-                        @endforeach
-                    </select>
-                    @error('paket_tes_id')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
-                </div>
-
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group mb-3">

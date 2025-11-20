@@ -8,61 +8,41 @@ use Illuminate\Support\Facades\Auth;
 
 class PelamarLoginController extends Controller
 {
-    /**
-     * Constructor
-     */
     public function __construct()
     {
-        // Redirect jika sudah login
         $this->middleware('guest:pelamar')->except('logout');
     }
 
-    /**
-     * Tampilkan form login pelamar
-     */
     public function showLoginForm()
     {
         return view('auth.pelamar-login');
     }
 
-    /**
-     * Proses login pelamar
-     */
     public function login(Request $request)
     {
-        // Validasi input
-        $request->validate([
-            'username' => 'required|string', // Bisa username atau email
-            'password' => 'required|string',
+        $this->validate($request, [
+            'username' => 'required|string',
+            'password' => 'required|min:6'
         ]);
 
-        // Coba login dengan username atau email
-        $fieldType = filter_var($request->username, FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
-        $credentials = [$fieldType => $request->username, 'password' => $request->password];
+        // Cek login menggunakan email, password, DAN is_active=1
+        if (Auth::guard('pelamar')->attempt([
+            'username' => $request->username, 
+            'password' => $request->password,
+            'is_active' => 1 // Hanya yang aktif yang bisa login
+        ], $request->get('remember'))) {
 
-        if (Auth::guard('pelamar')->attempt($credentials, $request->filled('remember'))) {
-            // Login berhasil
-            $request->session()->regenerate();
-
-            return redirect()->intended('/pelamar/dashboard');
+            return redirect()->intended(route('pelamar.dashboard'));
         }
 
-        // Login gagal
-        return back()->withErrors([
-            'username' => 'Username/Email atau password salah.',
-        ])->onlyInput('username');
+        return back()->withInput($request->only('email', 'remember'))
+                     ->withErrors(['email' => 'Email/Password salah atau akun dinonaktifkan.']);
     }
 
-    /**
-     * Logout pelamar
-     */
     public function logout(Request $request)
     {
         Auth::guard('pelamar')->logout();
-
         $request->session()->invalidate();
-        $request->session()->regenerateToken();
-
-        return redirect('/pelamar/login');
+        return redirect('/');
     }
 }

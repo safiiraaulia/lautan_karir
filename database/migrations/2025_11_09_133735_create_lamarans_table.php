@@ -17,8 +17,9 @@ class CreateLamaransTable extends Migration
             $table->id('id_lamaran'); // Sesuai brief
             $table->unsignedBigInteger('pelamar_id');
             $table->unsignedBigInteger('lowongan_id');
-            $table->string('status_tahapan'); // misal: 'administrasi', 'tes', 'ditolak_admin', 'selesai_tes'
-            $table->decimal('skor_akhir_saw', 8, 4)->nullable(); // Skor SAW
+            $table->string('status');
+            $table->date('tgl_melamar');
+            $table->decimal('skor_akhir_saw', 8, 4)->nullable();
 
             $table->foreign('pelamar_id')->references('id_pelamar')->on('pelamar');
             $table->foreign('lowongan_id')->references('id_lowongan')->on('lowongan');

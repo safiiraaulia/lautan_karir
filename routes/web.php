@@ -12,16 +12,22 @@ use App\Http\Controllers\Admin\LowonganController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\PelamarController;
 use App\Http\Controllers\Admin\SeleksiController;
+use App\Http\Controllers\Front\LowonganController as PublicLowonganController;
 
 /*
 |--------------------------------------------------------------------------
 | PUBLIC ROUTES
 |--------------------------------------------------------------------------
 */
+/*
+|--------------------------------------------------------------------------
+| PUBLIC ROUTES (Bisa diakses tanpa login)
+|--------------------------------------------------------------------------
+*/
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('/', [PublicLowonganController::class, 'index'])->name('home');
+Route::get('/lowongan', [PublicLowonganController::class, 'index'])->name('lowongan.index');
+Route::get('/lowongan/{lowongan}', [PublicLowonganController::class, 'show'])->name('lowongan.show');
 
 /*
 |--------------------------------------------------------------------------
@@ -127,15 +133,44 @@ Route::middleware(['auth:admin'])->prefix('admin')->group(function () {
 |--------------------------------------------------------------------------
 */
 
-Route::get('/pelamar/register', [PelamarRegisterController::class, 'showRegistrationForm'])->name('pelamar.register');
-Route::post('/pelamar/register', [PelamarRegisterController::class, 'register']);
+// Route Tamu (Guest) - Register & Login
+Route::group(['middleware' => 'guest:pelamar'], function () {
+    Route::get('/pelamar/register', [PelamarRegisterController::class, 'showRegistrationForm'])->name('pelamar.register');
+    Route::post('/pelamar/register', [PelamarRegisterController::class, 'register']);
 
-Route::get('/pelamar/login', [PelamarLoginController::class, 'showLoginForm'])->name('pelamar.login');
-Route::post('/pelamar/login', [PelamarLoginController::class, 'login']);
-Route::post('/pelamar/logout', [PelamarLoginController::class, 'logout'])->name('pelamar.logout');
+    Route::get('/pelamar/login', [PelamarLoginController::class, 'showLoginForm'])->name('pelamar.login');
+    Route::post('/pelamar/login', [PelamarLoginController::class, 'login']);
+});
 
-Route::middleware(['auth.pelamar'])->prefix('pelamar')->group(function () {
+// Route Logout (Butuh Auth)
+Route::post('/pelamar/logout', [PelamarLoginController::class, 'logout'])->name('pelamar.logout')->middleware('auth:pelamar');
+
+// Route Halaman Utama Pelamar (Butuh Auth)
+Route::middleware(['auth:pelamar'])->prefix('pelamar')->name('pelamar.')->group(function () {
+    
+    // --- DASHBOARD ---
     Route::get('/dashboard', function () {
-        return view('pelamar.dashboard');
-    })->name('pelamar.dashboard');
+        $pelamar = Auth::guard('pelamar')->user();
+
+        // 1. Cek Kelengkapan Profil
+        $isProfileComplete = !empty($pelamar->nama) && 
+                             !empty($pelamar->nomor_whatsapp) && 
+                             !empty($pelamar->path_cv);
+
+        // 2. Ambil Riwayat Lamaran
+        $lamarans = \App\Models\Lamaran::with(['lowongan.posisi', 'lowongan.dealer'])
+                        ->where('pelamar_id', $pelamar->id_pelamar)
+                        ->latest('tgl_melamar')
+                        ->get();
+
+        return view('pelamar.dashboard', compact('pelamar', 'isProfileComplete', 'lamarans'));
+    })->name('dashboard');
+
+    // --- PROFILE ---
+    Route::get('/profile', [App\Http\Controllers\Pelamar\ProfileController::class, 'edit'])->name('profile.edit');
+    Route::put('/profile', [App\Http\Controllers\Pelamar\ProfileController::class, 'update'])->name('profile.update');
+    
+    // --- PROSES LAMARAN ---
+    Route::get('/lamar/{lowongan}', [App\Http\Controllers\Pelamar\LamaranController::class, 'create'])->name('lamaran.create');
+    Route::post('/lamar/{lowongan}', [App\Http\Controllers\Pelamar\LamaranController::class, 'store'])->name('lamaran.store');
 });

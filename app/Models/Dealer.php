@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Dealer extends Model
 {
-        use SoftDeletes;
+        use HasFactory, SoftDeletes;
 
     protected $table = 'dealer';
     protected $primaryKey = 'kode_dealer';
@@ -21,4 +22,9 @@ class Dealer extends Model
         'singkatan',
         'is_active'
     ];
+
+    public function lowongan()
+    {
+        return $this->hasMany(Lowongan::class, 'dealer_id', 'kode_dealer');
+    }
 }

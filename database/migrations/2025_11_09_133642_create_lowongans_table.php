@@ -22,7 +22,7 @@ class CreateLowongansTable extends Migration
         $table->string('posisi_id', 10); 
 
         // 2. DARI ERROR DEALER (Harus unsignedBigInteger)
-        $table->unsignedBigInteger('dealer_id'); 
+        $table->string('dealer_id'); 
 
         // 3. DARI ERROR PAKET TES (Harus unsignedBigInteger)
         $table->unsignedBigInteger('paket_tes_id');

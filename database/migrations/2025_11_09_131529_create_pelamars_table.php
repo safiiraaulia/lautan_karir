@@ -14,13 +14,13 @@ class CreatePelamarsTable extends Migration
     public function up()
     {
         Schema::create('pelamar', function (Blueprint $table) {
-            $table->id('id_pelamar'); // Sesuai brief
+            $table->id('id_pelamar');
             $table->string('nama');
-            $table->string('username')->unique(); // Sesuai brief
+            $table->string('username')->unique();
             $table->string('email')->unique();
             $table->string('nomor_whatsapp');
             $table->string('password');
-            // $table->rememberToken(); // Opsional untuk "Ingat Saya"
+            $table->rememberToken();
             $table->timestamps();
         });
     }

@@ -14,10 +14,11 @@ class CreateDealersTable extends Migration
     public function up()
     {
         Schema::create('dealer', function (Blueprint $table) {
-            $table->id('kode_dealer');
+            $table->string('kode_dealer')->primary();
             $table->string('nama_dealer');
             $table->string('kota');
-            $table->string('singkatan');
+            $table->string('singkatan')->nullable();
+            $table->softDeletes();
             $table->timestamps(); 
         });
     }

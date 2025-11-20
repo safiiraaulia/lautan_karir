@@ -1,44 +1,64 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Daftar Pelamar - Lautan Karir</title>
-    <style>
-        body { font-family: Arial; max-width: 400px; margin: 50px auto; }
-        input { width: 100%; padding: 10px; margin: 5px 0; }
-        button { width: 100%; padding: 10px; background: #28a745; color: white; border: none; cursor: pointer; }
-        .error { color: red; font-size: 14px; }
-        a { color: #007bff; }
-    </style>
-</head>
-<body>
-    <h2>Daftar Akun Pelamar</h2>
-    
-    @if ($errors->any())
-        <div class="error">
-            @foreach ($errors->all() as $error)
-                <p>{{ $error }}</p>
-            @endforeach
+@extends('layouts.public')
+
+@section('title', 'Pendaftaran Pelamar')
+
+@section('content')
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow-sm border-0">
+            <div class="card-body p-5">
+                <h3 class="text-center mb-4 text-primary fw-bold">Daftar Akun Baru</h3>
+                
+                <form method="POST" action="{{ route('pelamar.register') }}">
+                    @csrf
+
+                    <div class="mb-3">
+                        <label for="nama" class="form-label">Nama Lengkap</label>
+                        <input id="nama" type="text" class="form-control @error('nama') is-invalid @enderror" name="nama" value="{{ old('nama') }}" required autocomplete="nama" autofocus>
+                        @error('nama')
+                            <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
+                        @enderror
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Alamat Email</label>
+                        <input id="email" type="email" class="form-control @error('email') is-invalid @enderror" name="email" value="{{ old('email') }}" required autocomplete="email">
+                        @error('email')
+                            <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
+                        @enderror
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="nomor_whatsapp" class="form-label">Nomor WhatsApp</label>
+                        <input id="nomor_whatsapp" type="text" class="form-control @error('nomor_whatsapp') is-invalid @enderror" name="nomor_whatsapp" value="{{ old('nomor_whatsapp') }}" required>
+                        @error('nomor_whatsapp')
+                            <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
+                        @enderror
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Password</label>
+                        <input id="password" type="password" class="form-control @error('password') is-invalid @enderror" name="password" required autocomplete="new-password">
+                        @error('password')
+                            <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
+                        @enderror
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="password-confirm" class="form-label">Konfirmasi Password</label>
+                        <input id="password-confirm" type="password" class="form-control" name="password_confirmation" required autocomplete="new-password">
+                    </div>
+
+                    <div class="d-grid mb-3">
+                        <button type="submit" class="btn btn-primary btn-lg">Daftar Sekarang</button>
+                    </div>
+
+                    <div class="text-center">
+                        Sudah punya akun? <a href="{{ route('pelamar.login') }}" class="text-decoration-none">Login di sini</a>
+                    </div>
+                </form>
+            </div>
         </div>
-    @endif
-
-    <form method="POST" action="{{ url('/pelamar/register') }}">
-        @csrf
-        
-        <input type="text" name="nama" placeholder="Nama Lengkap" value="{{ old('nama') }}" required autofocus>
-        
-        <input type="text" name="username" placeholder="Username" value="{{ old('username') }}" required>
-        
-        <input type="email" name="email" placeholder="Email" value="{{ old('email') }}" required>
-        
-        <input type="text" name="nomor_whatsapp" placeholder="Nomor WhatsApp" value="{{ old('nomor_whatsapp') }}" required>
-        
-        <input type="password" name="password" placeholder="Password (min. 8 karakter)" required>
-        
-        <input type="password" name="password_confirmation" placeholder="Konfirmasi Password" required>
-        
-        <button type="submit">Daftar</button>
-    </form>
-
-    <p>Sudah punya akun? <a href="{{ route('pelamar.login') }}">Login di sini</a></p>
-</body>
-</html>
+    </div>
+</div>
+@endsection
