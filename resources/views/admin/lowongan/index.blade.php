@@ -34,10 +34,13 @@
                         <td>{{ $lowongan->tgl_buka->format('d M Y') }}</td>
                         <td>{{ $lowongan->tgl_tutup->format('d M Y') }}</td>
                         <td>
-                            @if($lowongan->status == 'Buka')
+                            @if($lowongan->status == 'Buka' && \Carbon\Carbon::now()->startOfDay()->lte($lowongan->tgl_tutup))
                                 <span class="badge bg-success">Buka</span>
                             @else
                                 <span class="badge bg-danger">Tutup</span>
+                                
+                                @if($lowongan->tgl_tutup < \Carbon\Carbon::now()->startOfDay() && $lowongan->status == 'Buka')
+                                @endif
                             @endif
                         </td>
                         <td>

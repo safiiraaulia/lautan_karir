@@ -26,11 +26,9 @@
                 <div id="kriteria-list">
                     @forelse ($kriterias as $index => $kriteria)
                         @php
-                            // Cek data tersimpan dari Controller (PosisiController@setupSaw)
+                            // Cek data tersimpan
                             $isChecked = array_key_exists($kriteria->id_kriteria, $bobot_tersimpan);
                             $oldBobot = $bobot_tersimpan[$kriteria->id_kriteria] ?? 0;
-                            
-                            // Ambil skala tersimpan untuk kriteria ini
                             $skalas = $skala_tersimpan[$kriteria->id_kriteria] ?? [];
                         @endphp
 
@@ -68,10 +66,11 @@
                                     @forelse($skalas as $skala)
                                         <div class="row mb-2 skala-row">
                                             <div class="col-md-7">
-                                                <input type="text" class="form-control" name="skala[{{ $kriteria->id_kriteria }}][skala_{{ $loop->index }}][deskripsi]" placeholder="Deskripsi (S1, D3, dll)" value="{{ $skala->deskripsi }}">
+                                                <input type="text" class="form-control" name="skala[{{ $kriteria->id_kriteria }}][{{ $loop->index }}][deskripsi]" placeholder="Deskripsi (S1, D3, dll)" value="{{ $skala->deskripsi }}">
                                             </div>
                                             <div class="col-md-3">
-                                                <input type="number" class="form-control" name="skala[{{ $kriteria->id_kriteria }}][skala_{{ $loop->index }}][nilai]" placeholder="Nilai (1-5)" value="{{ $skala->nilai }}">
+                                                {{-- PERBAIKAN: Tambah min="1" max="5" --}}
+                                                <input type="number" class="form-control nilai-input" name="skala[{{ $kriteria->id_kriteria }}][{{ $loop->index }}][nilai]" placeholder="Nilai (1-5)" value="{{ $skala->nilai }}" min="1" max="5" oninput="validateMax(this)">
                                             </div>
                                             <div class="col-md-2">
                                                 <button type="button" class="btn btn-danger btn-sm w-100" onclick="removeSkala(this)">Hapus</button>
@@ -80,13 +79,14 @@
                                     @empty
                                         <div class="row mb-2 skala-row">
                                             <div class="col-md-7">
-                                                <input type="text" class="form-control" name="skala[{{ $kriteria->id_kriteria }}][skala_0][deskripsi]" placeholder="Deskripsi (S1, D3, dll)" value="">
+                                                <input type="text" class="form-control" name="skala[{{ $kriteria->id_kriteria }}][0][deskripsi]" placeholder="Deskripsi (S1, D3, dll)" value="">
                                             </div>
                                             <div class="col-md-3">
-                                                <input type="number" class="form-control" name="skala[{{ $kriteria->id_kriteria }}][skala_0][nilai]" placeholder="Nilai (1-5)" value="">
+                                                {{-- PERBAIKAN: Tambah min="1" max="5" --}}
+                                                <input type="number" class="form-control nilai-input" name="skala[{{ $kriteria->id_kriteria }}][0][nilai]" placeholder="Nilai (1-5)" value="" min="1" max="5" oninput="validateMax(this)">
                                             </div>
                                             <div class="col-md-2">
-                                                </div>
+                                            </div>
                                         </div>
                                     @endforelse
 
@@ -107,11 +107,13 @@
         </div>
     </div>
 </div>
-@endsection
 
-@section('js')
 <script>
-    // Fungsi untuk menyembunyikan/menampilkan form Skala Nilai
+    function validateMax(input) {
+        if (input.value > 5) input.value = 5;
+        if (input.value < 1 && input.value !== "") input.value = 1;
+    }
+
     function toggleSkalaInput(kriteriaId) {
         const checkbox = document.getElementById(`kriteria-${kriteriaId}`);
         const container = document.getElementById(`skala-container-${kriteriaId}`);
@@ -119,31 +121,28 @@
 
         if (checkbox.checked) {
             container.style.display = 'block';
-            bobotInput.setAttribute('required', 'required'); // Wajib isi bobot
+            bobotInput.setAttribute('required', 'required'); 
         } else {
             container.style.display = 'none';
             bobotInput.removeAttribute('required');
-            bobotInput.value = 0; // Set bobot menjadi 0 jika tidak dicentang
+            bobotInput.value = 0; 
         }
     }
 
-    // Fungsi untuk menambah baris Skala Nilai secara dinamis
     function addSkalaRow(kriteriaId) {
         const container = document.getElementById(`skala-container-${kriteriaId}`);
         const wrapper = container.querySelector('.skala-wrapper');
-        
-        // Hitung index baru untuk array skala
-        const rowCount = wrapper.querySelectorAll('.skala-row').length;
-        const newIndex = rowCount; // Gunakan rowCount sebagai index baru (misal: skala_0, skala_1, ...)
+        const rowCount = wrapper.querySelectorAll('.skala-row').length; 
+        const newIndex = Date.now(); 
 
         const newRow = document.createElement('div');
         newRow.className = 'row mb-2 skala-row';
         newRow.innerHTML = `
             <div class="col-md-7">
-                <input type="text" class="form-control" name="skala[${kriteriaId}][skala_${newIndex}][deskripsi]" placeholder="Deskripsi (S1, D3, dll)" value="">
+                <input type="text" class="form-control" name="skala[${kriteriaId}][${newIndex}][deskripsi]" placeholder="Deskripsi (S1, D3, dll)" value="">
             </div>
             <div class="col-md-3">
-                <input type="number" class="form-control" name="skala[${kriteriaId}][skala_${newIndex}][nilai]" placeholder="Nilai (1-5)" value="">
+                <input type="number" class="form-control nilai-input" name="skala[${kriteriaId}][${newIndex}][nilai]" placeholder="Nilai (1-5)" value="" min="1" max="5" oninput="validateMax(this)">
             </div>
             <div class="col-md-2">
                 <button type="button" class="btn btn-danger btn-sm w-100" onclick="removeSkala(this)">Hapus</button>
@@ -152,16 +151,19 @@
         wrapper.appendChild(newRow);
     }
 
-    // Fungsi untuk menghapus baris Skala Nilai
     function removeSkala(button) {
         const row = button.closest('.skala-row');
         row.remove();
     }
 
-    // Panggil fungsi toggle saat halaman dimuat untuk memastikan status Bobot sudah benar
     document.addEventListener('DOMContentLoaded', function() {
         document.querySelectorAll('.form-check-input').forEach(checkbox => {
-            toggleSkalaInput(checkbox.value);
+            const container = document.getElementById(`skala-container-${checkbox.value}`);
+            if(checkbox.checked) {
+                container.style.display = 'block';
+            } else {
+                container.style.display = 'none';
+            }
         });
     });
 </script>

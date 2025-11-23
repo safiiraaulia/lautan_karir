@@ -16,11 +16,11 @@ class Lamaran extends Model
      * Tambahkan semua kolom tabel di sini.
      */
     protected $fillable = [
-        'pelamar_id',   // <-- Ini yang menyebabkan error sebelumnya
+        'pelamar_id',  
         'lowongan_id',
         'tgl_melamar',
         'status',
-        'skor_akhir_saw' // Opsional, untuk menyimpan nilai akhir nanti
+        'nilai_saw',
     ];
 
     protected $casts = [

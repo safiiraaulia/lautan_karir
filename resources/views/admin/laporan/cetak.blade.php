@@ -57,6 +57,8 @@
                 <th>Nama Pelamar</th>
                 <th>Posisi</th>
                 <th>Dealer</th>
+                {{-- [BARU] HEADER KOLOM NILAI --}}
+                <th style="text-align: center;">Nilai Seleksi (SAW)</th>
                 <th>Status</th>
             </tr>
         </thead>
@@ -68,15 +70,22 @@
                     <td>{{ $lamaran->pelamar->nama }}</td>
                     <td>{{ $lamaran->lowongan->posisi->nama_posisi }}</td>
                     <td>{{ $lamaran->lowongan->dealer->singkatan }}</td>
+                    
+                    {{-- [BARU] ISI KOLOM NILAI --}}
+                    <td style="text-align: center;">
+                        {{-- Menampilkan nilai jika ada, jika kosong strip --}}
+                        {{ $lamaran->nilai_saw ?? '-' }}
+                    </td>
+
                     <td>{{ $lamaran->status }}</td>
                 </tr>
             @empty
                 <tr>
-                    <td colspan="6" style="text-align: center;">Data tidak ditemukan.</td>
+                    {{-- [UPDATE] Colspan jadi 7 karena tambah 1 kolom --}}
+                    <td colspan="7" style="text-align: center;">Data tidak ditemukan.</td>
                 </tr>
             @endforelse
         </tbody>
     </table>
-
 </body>
 </html>

@@ -1,100 +1,77 @@
 @extends('layouts.public')
 
-@section('title', 'Dashboard Pelamar')
+@section('title', 'Dashboard Pelamar - Lautan Karir')
 
 @section('content')
-<div class="container py-5">
+<div class="bg-navy text-white py-5 shadow-sm mb-n5" style="background: linear-gradient(135deg, #103783 0%, #4b6cb7 100%); padding-bottom: 100px !important;">
+    <div class="container"><h2 class="fw-bold mb-1">Dashboard Saya</h2><p class="opacity-75 mb-0">Kelola profil dan pantau status lamaran Anda.</p></div>
+</div>
+
+<div class="container" style="margin-top: -60px;">
     <div class="row">
-        
+        {{-- Kolom Kiri: Profil Card --}}
         <div class="col-md-4 mb-4">
-            <div class="card shadow-sm border-0 text-center">
-                <div class="card-body py-4">
-                    <div class="mb-3">
+            <div class="card shadow-lg border-0 rounded-4 overflow-hidden">
+                <div class="card-body text-center p-4 pt-5">
+                    <div class="mb-4 position-relative d-inline-block">
                         @if($pelamar->foto)
-                            <img src="{{ Storage::url($pelamar->foto) }}" class="rounded-circle img-thumbnail" style="width: 120px; height: 120px; object-fit: cover;">
+                            <img src="{{ Storage::url($pelamar->foto) }}" class="rounded-circle shadow-sm border border-4 border-white" style="width: 130px; height: 130px; object-fit: cover;">
                         @else
-                            <div class="rounded-circle bg-light d-inline-flex align-items-center justify-content-center" style="width: 120px; height: 120px;">
-                                <i class="fas fa-user fa-4x text-secondary"></i>
-                            </div>
+                            <div class="rounded-circle bg-light d-inline-flex align-items-center justify-content-center shadow-sm border border-4 border-white" style="width: 130px; height: 130px;"><i class="fas fa-user fa-4x text-secondary opacity-50"></i></div>
                         @endif
-                    </div>
-                    
-                    <h5 class="fw-bold mb-0">{{ $pelamar->nama }}</h5>
-                    <p class="text-primary small mb-0">{{ $pelamar->username }}</p> 
-                    <p class="text-muted small">{{ $pelamar->email }}</p>
-
-                    <hr>
-
-                    @if($isProfileComplete)
-                        <div class="alert alert-success py-2 small mb-3">
-                            <i class="fas fa-check-circle"></i> Profil Lengkap
+                        <div class="position-absolute bottom-0 end-0 mb-2 me-2">
+                            <span class="badge {{ $isProfileComplete ? 'bg-success' : 'bg-warning text-dark' }} rounded-circle p-2 border border-2 border-white" title="{{ $isProfileComplete ? 'Lengkap' : 'Belum Lengkap' }}"><i class="fas fa-{{ $isProfileComplete ? 'check' : 'exclamation' }}"></i></span>
                         </div>
-                    @else
-                        <div class="alert alert-warning py-2 small mb-3">
-                            <i class="fas fa-exclamation-circle"></i> Profil Belum Lengkap
-                        </div>
-                    @endif
-
-                    <div class="d-grid gap-2">
-                        <a href="{{ route('pelamar.profile.edit') }}" class="btn btn-outline-primary">
-                            <i class="fas fa-edit me-1"></i> Edit Profil & Berkas
-                        </a>
                     </div>
+                    <h5 class="fw-bold mb-1 text-navy">{{ $pelamar->nama }}</h5>
+                    <p class="text-muted small mb-3">{{ $pelamar->email }}</p>
+                    <div class="d-grid gap-2"><a href="{{ route('pelamar.profile.edit') }}" class="btn btn-outline-navy rounded-pill fw-bold transition-btn"><i class="fas fa-user-edit me-2"></i> Edit Profil</a></div>
                 </div>
+                <div class="card-footer bg-light border-0 py-3 text-center"><small class="text-muted">Bergabung sejak {{ $pelamar->created_at->format('M Y') }}</small></div>
             </div>
         </div>
 
+        {{-- Kolom Kanan: Status & Riwayat --}}
         <div class="col-md-8">
-            
             @if(!$isProfileComplete)
-                <div class="alert alert-warning shadow-sm border-0 mb-4">
-                    <h5 class="alert-heading fw-bold"><i class="fas fa-clipboard-list me-2"></i> Lengkapi Profil Anda!</h5>
-                    <p class="mb-0">Anda belum bisa melamar pekerjaan sebelum melengkapi data diri dan mengupload berkas (CV, KTP, dll).</p>
-                    <hr>
-                    <a href="{{ route('pelamar.profile.edit') }}" class="btn btn-warning btn-sm fw-bold">Lengkapi Sekarang</a>
+                <div class="alert alert-warning shadow-sm border-0 rounded-4 mb-4 d-flex align-items-center" role="alert">
+                    <div class="bg-white p-2 rounded-circle text-warning me-3 shadow-sm"><i class="fas fa-clipboard-list fa-lg"></i></div>
+                    <div class="flex-grow-1"><h6 class="alert-heading fw-bold mb-1">Lengkapi Profil Anda!</h6><p class="mb-0 small">Anda perlu melengkapi data diri & upload berkas sebelum melamar.</p></div>
+                    <a href="{{ route('pelamar.profile.edit') }}" class="btn btn-warning btn-sm fw-bold rounded-pill px-3 shadow-sm">Lengkapi</a>
                 </div>
             @endif
 
-            <div class="card shadow-sm border-0">
-                <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0 fw-bold text-primary"><i class="fas fa-history me-2"></i> Riwayat Lamaran Saya</h5>
-                    <a href="{{ route('lowongan.index') }}" class="btn btn-sm btn-primary">+ Cari Lowongan Baru</a>
+            <div class="card shadow-sm border-0 rounded-4">
+                <div class="card-header bg-white py-4 border-bottom-0 d-flex justify-content-between align-items-center px-4">
+                    <h5 class="mb-0 fw-bold text-navy"><i class="fas fa-history me-2 text-muted"></i> Riwayat Lamaran</h5>
+                    <a href="{{ route('lowongan.index') }}" class="btn btn-sm btn-navy rounded-pill px-3 shadow-sm transition-btn"><i class="fas fa-plus me-1"></i> Cari Lowongan</a>
                 </div>
                 
                 <div class="card-body p-0">
                     @if($lamarans->count() > 0)
                         <div class="table-responsive">
                             <table class="table table-hover align-middle mb-0">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th class="ps-4">Posisi & Dealer</th>
-                                        <th>Tanggal Lamar</th>
-                                        <th>Status</th>
-                                        <th>Detail</th>
-                                    </tr>
+                                <thead class="bg-light text-secondary small text-uppercase">
+                                    <tr><th class="ps-4 py-3 border-0">Posisi</th><th class="py-3 border-0">Tanggal</th><th class="py-3 border-0 text-end pe-4">Status Seleksi</th></tr>
                                 </thead>
                                 <tbody>
+                                    @php
+                                        $statusMap = [
+                                            'Proses Administrasi' => ['bg-soft-warning text-warning-dark', 'fas fa-spinner', 'Proses Administrasi'],
+                                            'Lolos Administrasi' => ['bg-soft-success text-success', 'fas fa-check-circle', 'Lolos Seleksi'],
+                                            'Gagal Administrasi' => ['bg-soft-danger text-danger', 'fas fa-times-circle', 'Tidak Lolos']
+                                        ];
+                                    @endphp
                                     @foreach($lamarans as $lamaran)
                                     <tr>
-                                        <td class="ps-4">
-                                            <div class="fw-bold">{{ $lamaran->lowongan->posisi->nama_posisi }}</div>
-                                            <div class="small text-muted">{{ $lamaran->lowongan->dealer->nama_dealer }}</div>
+                                        <td class="ps-4 py-3">
+                                            <div class="fw-bold text-navy">{{ $lamaran->lowongan->posisi->nama_posisi }}</div>
+                                            <div class="small text-muted"><i class="far fa-building me-1"></i> {{ $lamaran->lowongan->dealer->nama_dealer }}</div>
                                         </td>
-                                        <td>{{ $lamaran->tgl_melamar->format('d M Y') }}</td>
-                                        <td>
-                                            @if($lamaran->status == 'Proses Administrasi')
-                                                <span class="badge bg-warning text-dark">Sedang Diproses</span>
-                                            @elseif($lamaran->status == 'Lolos Administrasi')
-                                                <span class="badge bg-success">Lolos Administrasi</span>
-                                                <div class="small text-success mt-1">Menunggu Jadwal Tes</div>
-                                            @elseif($lamaran->status == 'Gagal Administrasi')
-                                                <span class="badge bg-danger">Tidak Lolos</span>
-                                            @else
-                                                <span class="badge bg-secondary">{{ $lamaran->status }}</span>
-                                            @endif
-                                        </td>
-                                        <td>
-                                            <button class="btn btn-sm btn-light border" disabled>Lihat</button>
+                                        <td class="py-3 text-muted small">{{ $lamaran->tgl_melamar->locale('id')->isoFormat('D MMM Y') }}</td>
+                                        <td class="py-3 text-end pe-4">
+                                            @php $s = $statusMap[$lamaran->status] ?? ['bg-secondary', '', $lamaran->status]; @endphp
+                                            <span class="badge {{ $s[0] }} rounded-pill px-3"><i class="{{ $s[1] }} me-1 small"></i> {{ $s[2] }}</span>
                                         </td>
                                     </tr>
                                     @endforeach
@@ -103,16 +80,29 @@
                         </div>
                     @else
                         <div class="text-center py-5">
-                            <i class="fas fa-file-alt fa-3x text-muted mb-3"></i>
-                            <h5>Belum ada lamaran aktif.</h5>
-                            <p class="text-muted">Ayo mulai karirmu dengan melamar pekerjaan yang tersedia.</p>
-                            <a href="{{ route('lowongan.index') }}" class="btn btn-primary mt-2">Cari Lowongan</a>
+                            <div class="mb-3 text-muted opacity-25"><i class="fas fa-folder-open fa-4x"></i></div>
+                            <h6 class="fw-bold text-navy">Belum ada lamaran aktif.</h6>
+                            <p class="text-muted small mb-3">Ayo mulai karirmu dengan melamar pekerjaan yang tersedia.</p>
+                            <a href="{{ route('lowongan.index') }}" class="btn btn-outline-navy rounded-pill px-4 transition-btn">Jelajahi Lowongan</a>
                         </div>
                     @endif
                 </div>
             </div>
         </div>
-
     </div>
 </div>
+
+<style>
+    .text-navy { color: #103783 !important; }
+    .bg-navy { background-color: #103783 !important; }
+    .btn-navy { background-color: #103783; border-color: #103783; color: #fff; }
+    .btn-navy:hover { background-color: #0a265e; color: #fff; }
+    .btn-outline-navy { color: #103783; border-color: #103783; }
+    .btn-outline-navy:hover { background-color: #103783; color: #fff; }
+    .bg-soft-warning { background-color: #fffbeb; } .text-warning-dark { color: #b45309; }
+    .bg-soft-success { background-color: #ecfdf5; } .text-success { color: #047857 !important; }
+    .bg-soft-danger { background-color: #fef2f2; } .text-danger { color: #b91c1c !important; }
+    .transition-btn { transition: all 0.3s ease; }
+    .transition-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+</style>
 @endsection

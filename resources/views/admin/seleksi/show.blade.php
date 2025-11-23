@@ -9,7 +9,20 @@
             <h3 class="text-dark mb-0 fw-bold">Hasil Perangkingan SAW</h3>
             <p class="text-muted small mb-0">Daftar pelamar yang diurutkan berdasarkan skor tertinggi.</p>
         </div>
-        <a href="{{ route('admin.seleksi.index') }}" class="btn btn-outline-secondary"><i class="fas fa-arrow-left mr-1"></i> Kembali</a>
+        
+        {{-- [FITUR BARU] Tombol Simpan & Kembali --}}
+        <div>
+            <form action="{{ route('admin.seleksi.simpanRanking', $lowongan->id_lowongan) }}" method="POST" class="d-inline">
+                @csrf
+                <button type="submit" class="btn btn-primary mr-2">
+                    <i class="fas fa-save mr-1"></i> Simpan Hasil
+                </button>
+            </form>
+
+            <a href="{{ route('admin.seleksi.index') }}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left mr-1"></i> Kembali
+            </a>
+        </div>
     </div>
 
     <div class="card mb-4 card-dark card-outline shadow-sm">
@@ -49,6 +62,15 @@
             </button>
         </div>
     @endif
+
+    @if (session('error'))
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            {{ session('error') }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    @endif
     
     @if ($errors->any())
         <div class="alert alert-danger">{{ $errors->first() }}</div>
@@ -65,6 +87,7 @@
                         <th width="50" class="text-center">Rank</th>
                         <th>Nama Pelamar</th>
                         <th width="150" class="text-center">Nilai Akhir (V)</th>
+                        <th width="150" class="text-center">Status Simpan</th>
                         <th width="180" class="text-center">Status</th>
                         <th width="300" class="text-center">Aksi</th>
                     </tr>
@@ -85,6 +108,15 @@
                                 {{ $hasil['nilai_v'] }}
                             </span>
                         </td>
+
+                        <td class="text-center align-middle">
+                            @if(isset($hasil['nilai_disimpan']) && (float)$hasil['nilai_v'] == (float)$hasil['nilai_disimpan'])
+                                <span class="badge badge-success"><i class="fas fa-check"></i> Tersimpan</span>
+                            @else
+                                <span class="badge badge-warning text-dark"><i class="fas fa-exclamation-circle"></i> Belum Disimpan</span>
+                            @endif
+                        </td>
+
                         <td class="text-center align-middle">
                             @if($hasil['status_lamaran'] == 'Lolos Administrasi')
                                 <span class="badge badge-success p-2">Lolos Administrasi</span>
@@ -94,6 +126,7 @@
                                 <span class="badge badge-warning p-2 text-dark">Proses Seleksi</span>
                             @endif
                         </td>
+
                         <td class="text-center align-middle">
                             @if($lamaran)
                                 <a href="{{ route('admin.pelamar.show', $lamaran->pelamar_id) }}" target="_blank" class="btn btn-info btn-sm me-1">Detail</a>
@@ -118,7 +151,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="5" class="text-center py-4 text-muted">
+                        <td colspan="6" class="text-center py-4 text-muted">
                             <i class="fas fa-inbox fa-2x mb-2 d-block"></i>
                             Belum ada pelamar yang mengisi form administrasi SAW.
                         </td>
