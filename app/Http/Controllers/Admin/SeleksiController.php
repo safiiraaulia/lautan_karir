@@ -8,6 +8,7 @@ use App\Models\Lamaran;
 use App\Models\Kriteria;
 use App\Models\SkalaNilai;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB; // Pastikan ini ada jika belum
 
 class SeleksiController extends Controller
 {
@@ -31,10 +32,10 @@ class SeleksiController extends Controller
      */
     public function show(Lowongan $lowongan)
     {
-        // 1. Validasi: Ambil semua Lamaran untuk lowongan ini (yang statusnya "Proses Administrasi" atau "Lolos Admin")
+        // 1. Validasi: Ambil semua Lamaran yang sudah mengisi form SAW
         $lamarans = Lamaran::with(['pelamar', 'jawabanAdministrasi.skalaNilai'])
                            ->where('lowongan_id', $lowongan->id_lowongan)
-                           ->whereIn('status', ['Proses Administrasi', 'Lolos Administrasi', 'Gagal Administrasi']) // Ambil lamaran yang sudah mengisi form SAW
+                           ->whereIn('status', ['Proses Administrasi', 'Lolos Administrasi', 'Gagal Administrasi'])
                            ->get();
         
         // 2. Ambil Kriteria (W) dan Bobot dari Posisi
@@ -47,21 +48,15 @@ class SeleksiController extends Controller
         // ======================================================
         // == LOGIKA PERHITUNGAN SAW ==
         // ======================================================
-        $matriks_x = []; // Matriks Nilai (X)
-        $alternatif_ids = []; // [lamaran_id => nama_pelamar]
+        $matriks_x = []; 
+        $alternatif_ids = []; 
 
-        // 3. Buat Matriks Keputusan (X) dan Bobot (W)
+        // 3. Buat Matriks Keputusan (X)
         foreach ($lamarans as $lamaran) {
             $alternatif_ids[$lamaran->id_lamaran] = $lamaran->pelamar->nama;
             
             foreach ($kriterias as $kriteria) {
-                // Ambil jawaban pelamar untuk kriteria ini
-                $jawaban = $lamaran->jawabanAdministrasi
-                                   ->where('kriteria_id', $kriteria->id_kriteria)
-                                   ->first();
-                
-                // Nilai X adalah nilai numerik dari SkalaNilai
-                // Gunakan 0 jika tidak ada jawaban (opsional: bisa juga diabaikan)
+                $jawaban = $lamaran->jawabanAdministrasi->where('kriteria_id', $kriteria->id_kriteria)->first();
                 $nilai_x = $jawaban ? $jawaban->skalaNilai->nilai : 0; 
                 $matriks_x[$lamaran->id_lamaran][$kriteria->id_kriteria] = $nilai_x;
             }
@@ -70,23 +65,15 @@ class SeleksiController extends Controller
         // 4. Cari Nilai Max per Kriteria (Max(Xj))
         $max_values = [];
         foreach ($kriterias as $kriteria) {
-            // Ambil semua nilai X untuk kriteria tertentu di semua pelamar
             $values = array_column($matriks_x, $kriteria->id_kriteria);
-            
-            // Karena kita asumsikan semua kriteria di tahap ini adalah 'Benefit'
-            // (Semakin tinggi nilai semakin baik), kita hanya perlu mencari nilai maksimum.
-            // Catatan: Jika ada 'Cost', logika ini harus diperluas.
-            $max_values[$kriteria->id_kriteria] = $values ? max($values) : 1; // Hindari pembagian nol
+            $max_values[$kriteria->id_kriteria] = $values ? max($values) : 1; 
         }
 
         // 5. Normalisasi Matriks (R)
-        $matriks_r = $matriks_x; // Copy struktur
+        $matriks_r = $matriks_x;
         foreach ($matriks_r as $id_lamaran => $kriteria_list) {
             foreach ($kriteria_list as $id_kriteria => $nilai_x) {
                 $pembagi = $max_values[$id_kriteria];
-                
-                // Normalisasi R = Xij / Max(Xj)
-                // Kita abaikan pengecekan Benefit/Cost karena semua di tahap Administrasi biasanya Benefit
                 $matriks_r[$id_lamaran][$id_kriteria] = $nilai_x / $pembagi;
             }
         }
@@ -96,13 +83,10 @@ class SeleksiController extends Controller
         foreach ($matriks_r as $id_lamaran => $kriteria_list) {
             $total_nilai = 0;
             foreach ($kriteria_list as $id_kriteria => $nilai_normal) {
-                // Bobot W diambil dari pivot table kriteria_posisi
                 $bobot_w = $kriterias->where('id_kriteria', $id_kriteria)->first()->pivot->bobot_saw;
-                
-                // V = Sum (W * R)
                 $total_nilai += ($bobot_w * $nilai_normal);
             }
-            $hasil_v[$id_lamaran] = round($total_nilai, 4); // Bulatkan 4 angka di belakang koma
+            $hasil_v[$id_lamaran] = round($total_nilai, 4);
         }
 
         // 7. Rangking
@@ -119,9 +103,28 @@ class SeleksiController extends Controller
                 'nilai_v' => $nilai_v,
             ];
         }
+        // ======================================================
         
         return view('admin.seleksi.show', compact('lowongan', 'hasil_akhir', 'kriterias'));
     }
 
-    // Nanti kita tambahkan method untuk update status Lolos/Gagal di sini
+    /**
+     * Update status lamaran menjadi Lolos/Gagal Administrasi.
+     * (Method ini sudah dipindahkan ke luar fungsi show())
+     */
+    public function updateStatus(Request $request, Lamaran $lamaran)
+    {
+        $request->validate([
+            'status' => 'required|in:Lolos Administrasi,Gagal Administrasi',
+        ]);
+        
+        $lamaran->status = $request->status;
+        $lamaran->save();
+
+        $pesan = $request->status == 'Lolos Administrasi' 
+            ? 'Pelamar berhasil diloloskan ke tahap psikotes.' 
+            : 'Pelamar berhasil digagalkan pada tahap administrasi.';
+
+        return back()->with('success', $pesan);
+    }
 }

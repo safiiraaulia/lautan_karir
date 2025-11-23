@@ -65,8 +65,9 @@
 
                     <div class="d-grid gap-2">
                         @if(Auth::guard('pelamar')->check())
-                            {{-- <a href="{{ route('pelamar.lamaran.create', $lowongan->id_lowongan) }}" class="btn btn-primary btn-lg"> --}}
-                            <button class="btn btn-primary btn-lg" disabled>Lamar Sekarang (Segera Hadir)</button>
+                            <a href="{{ route('pelamar.lamaran.create', $lowongan->id_lowongan) }}" class="btn btn-primary btn-lg">
+                                Lamar Sekarang
+                            </a>
                         @else
                             <a href="{{ route('pelamar.login') }}" class="btn btn-primary btn-lg">Login untuk Melamar</a>
                             <a href="{{ route('pelamar.register') }}" class="btn btn-outline-primary">Daftar Akun Baru</a>

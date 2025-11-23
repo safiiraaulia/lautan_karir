@@ -13,6 +13,8 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\PelamarController;
 use App\Http\Controllers\Admin\SeleksiController;
 use App\Http\Controllers\Front\LowonganController as PublicLowonganController;
+use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\LaporanController;
 
 /*
 |--------------------------------------------------------------------------
@@ -48,9 +50,7 @@ Route::post('/admin/logout', [AdminLoginController::class, 'logout'])
 // ✅ Dashboard & Menu Admin (auth:admin)
 Route::middleware(['auth:admin'])->prefix('admin')->group(function () {
 
-    Route::get('/dashboard', function () {
-        return view('admin.dashboard');
-    })->name('admin.dashboard');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
 
     
 
@@ -112,7 +112,12 @@ Route::middleware(['auth:admin'])->prefix('admin')->group(function () {
         Route::prefix('seleksi')->name('admin.seleksi.')->group(function () {
             Route::get('/', [SeleksiController::class, 'index'])->name('index'); 
             Route::get('/{lowongan}', [SeleksiController::class, 'show'])->name('show');
+            Route::post('/{lamaran}/update-status', [SeleksiController::class, 'updateStatus'])->name('updateStatus');
         });
+
+       
+        Route::get('/laporan', [LaporanController::class, 'index'])->name('admin.laporan.index');
+        Route::get('/laporan/cetak', [LaporanController::class, 'cetak'])->name('admin.laporan.cetak');
 
         Route::get('pelamar', [PelamarController::class, 'index'])->name('admin.pelamar.index');
         Route::get('pelamar/{pelamar}', [PelamarController::class, 'show'])->name('admin.pelamar.show');

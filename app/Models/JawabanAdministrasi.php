@@ -8,22 +8,34 @@ use Illuminate\Database\Eloquent\Model;
 class JawabanAdministrasi extends Model
 {
     use HasFactory;
+    
     protected $table = 'jawaban_administrasi';
-    public $timestamps = false;
+    protected $primaryKey = 'id_jawaban';
+    public $timestamps = false; // Tabel ini tidak butuh created_at/updated_at
 
     /**
-     * Relasi: Satu Jawaban dimiliki oleh Satu Lamaran
+     * Kolom yang boleh diisi secara massal.
      */
+    protected $fillable = [
+        'lamaran_id',      // <-- Ini yang menyebabkan error Anda
+        'kriteria_id',
+        'skala_nilai_id', 
+    ];
+
+    // --- RELASI ---
+
     public function lamaran()
     {
         return $this->belongsTo(Lamaran::class, 'lamaran_id', 'id_lamaran');
     }
 
-    /**
-     * Relasi: Satu Jawaban mengacu pada Satu Kriteria
-     */
     public function kriteria()
     {
         return $this->belongsTo(Kriteria::class, 'kriteria_id', 'id_kriteria');
+    }
+
+    public function skalaNilai()
+    {
+        return $this->belongsTo(SkalaNilai::class, 'skala_nilai_id', 'id_skala');
     }
 }

@@ -346,38 +346,80 @@
                                 <div class="row g-4">
                                     <div class="col-md-6">
                                         <label class="form-label fw-bold">Pas Foto Terbaru</label>
-                                        <input type="file" class="form-control" name="foto" accept="image/*">
-                                        @if($pelamar->foto) <small class="text-success"><i class="fas fa-check"></i> Sudah diupload</small> @endif
+                                        <input type="file" class="form-control mb-2" name="foto" accept="image/*">
+                                        @if($pelamar->foto) 
+                                            <div class="d-flex align-items-center mt-2 p-2 border rounded bg-light">
+                                                <img src="{{ Storage::url($pelamar->foto) }}" alt="Foto Profil" class="rounded me-3" style="width: 60px; height: 60px; object-fit: cover;">
+                                                <div>
+                                                    <small class="text-success d-block fw-bold"><i class="fas fa-check-circle"></i> Foto Tersimpan</small>
+                                                </div>
+                                            </div>
+                                        @endif
                                     </div>
+
                                     <div class="col-md-6">
                                         <label class="form-label fw-bold">Scan KTP</label>
-                                        <input type="file" class="form-control" name="path_ktp" accept=".pdf,image/*">
-                                        @if($pelamar->path_ktp) <small class="text-success"><i class="fas fa-check"></i> Sudah diupload</small> @endif
+                                        <input type="file" class="form-control mb-2" name="path_ktp" accept=".pdf,image/*">
+                                        @if($pelamar->path_ktp) 
+                                            <div class="mt-2">
+                                                <a href="{{ Storage::url($pelamar->path_ktp) }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                                    <i class="fas fa-eye"></i> Lihat KTP Tersimpan
+                                                </a>
+                                            </div>
+                                        @endif
                                     </div>
+
                                     <div class="col-md-6">
                                         <label class="form-label fw-bold">CV (Curriculum Vitae)</label>
-                                        <input type="file" class="form-control" name="path_cv" accept=".pdf">
-                                        @if($pelamar->path_cv) <small class="text-success"><i class="fas fa-check"></i> Sudah diupload</small> @endif
+                                        <input type="file" class="form-control mb-2" name="path_cv" accept=".pdf">
+                                        @if($pelamar->path_cv) 
+                                            <div class="mt-2">
+                                                <a href="{{ Storage::url($pelamar->path_cv) }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                                    <i class="fas fa-file-pdf"></i> Lihat CV Tersimpan
+                                                </a>
+                                            </div>
+                                        @endif
                                     </div>
+
                                     <div class="col-md-6">
                                         <label class="form-label fw-bold">Ijazah Terakhir</label>
-                                        <input type="file" class="form-control" name="path_ijazah" accept=".pdf">
-                                        @if($pelamar->path_ijazah) <small class="text-success"><i class="fas fa-check"></i> Sudah diupload</small> @endif
+                                        <input type="file" class="form-control mb-2" name="path_ijazah" accept=".pdf">
+                                        @if($pelamar->path_ijazah) 
+                                            <div class="mt-2">
+                                                <a href="{{ Storage::url($pelamar->path_ijazah) }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                                    <i class="fas fa-file-alt"></i> Lihat Ijazah Tersimpan
+                                                </a>
+                                            </div>
+                                        @endif
                                     </div>
+
                                     <div class="col-md-6">
                                         <label class="form-label fw-bold">Kartu Keluarga (KK)</label>
-                                        <input type="file" class="form-control" name="path_kk" accept=".pdf,image/*">
-                                        @if($pelamar->path_kk) <small class="text-success"><i class="fas fa-check"></i> Sudah diupload</small> @endif
+                                        <input type="file" class="form-control mb-2" name="path_kk" accept=".pdf,image/*">
+                                        @if($pelamar->path_kk) 
+                                            <div class="mt-2">
+                                                <a href="{{ Storage::url($pelamar->path_kk) }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                                    <i class="fas fa-users"></i> Lihat KK Tersimpan
+                                                </a>
+                                            </div>
+                                        @endif
                                     </div>
+
                                     <div class="col-md-6">
                                         <label class="form-label fw-bold">Surat Lamaran</label>
-                                        <input type="file" class="form-control" name="path_lamaran" accept=".pdf">
-                                        @if($pelamar->path_lamaran) <small class="text-success"><i class="fas fa-check"></i> Sudah diupload</small> @endif
+                                        <input type="file" class="form-control mb-2" name="path_lamaran" accept=".pdf">
+                                        @if($pelamar->path_lamaran) 
+                                            <div class="mt-2">
+                                                <a href="{{ Storage::url($pelamar->path_lamaran) }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                                    <i class="fas fa-envelope-open-text"></i> Lihat Surat Lamaran
+                                                </a>
+                                            </div>
+                                        @endif
                                     </div>
                                 </div>
 
                                 <div class="mt-3 text-start">
-                                    <button type="button" class="btn btn-warning fw-bold me-2" onclick="prevTab('pekerjaan-tab')">&laquo; Kembali</button>
+                                    <button type="button" class="btn btn-warning fw-bold" onclick="prevTab('pekerjaan-tab')">&laquo; Kembali</button>
                                 </div>
 
                                 <div class="mt-5 d-grid">

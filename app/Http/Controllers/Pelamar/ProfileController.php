@@ -6,59 +6,71 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage; // Pastikan ini ada
 use App\Models\PelamarKeluarga;
 use App\Models\PelamarPendidikan;
 use App\Models\PelamarPekerjaan;
 
 class ProfileController extends Controller
 {
-    /**
-     * Menampilkan formulir data diri pelamar.
-     */
     public function edit()
     {
         $pelamar = Auth::guard('pelamar')->user();
-        
-        // Load data relasi agar muncul di form (jika sudah pernah diisi)
         $pelamar->load(['keluarga', 'pendidikan', 'pekerjaan']);
-
         return view('pelamar.profile', compact('pelamar'));
     }
 
-    /**
-     * Menyimpan perubahan profil.
-     */
     public function update(Request $request)
     {
         $pelamar = Auth::guard('pelamar')->user();
 
-        // Gunakan DB Transaction agar jika satu gagal, semua batal (Data aman)
         DB::transaction(function () use ($request, $pelamar) {
             
-            // 1. UPDATE TABEL UTAMA (PELAMAR)
-            // Kita ambil semua input, kecuali data array (keluarga/pendidikan/pekerjaan)
-            // dan file upload (kita handle terpisah jika ada)
-            $dataUtama = $request->except(['_token', '_method', 'keluarga', 'pendidikan', 'pekerjaan']);
+            // 1. SETUP DATA PELAMAR
+            // PENTING: Kecualikan semua input file dan array dari data utama
+            // agar tidak tersimpan sebagai object temporary (C:\Tmp\...)
+            $keysToExclude = [
+                '_token', '_method', 
+                'keluarga', 'pendidikan', 'pekerjaan', // Array data anak
+                'foto', 'path_cv', 'path_ktp', 'path_ijazah', 'path_kk', 'path_lamaran' // File
+            ];
             
-            // Update data diri
-            $pelamar->update($dataUtama);
+            $dataPelamar = $request->except($keysToExclude);
+            
+            // 2. PROSES UPLOAD FILE (Satu per Satu)
+            $files = ['foto', 'path_cv', 'path_ktp', 'path_ijazah', 'path_kk', 'path_lamaran'];
+            
+            foreach ($files as $fileKey) {
+                if ($request->hasFile($fileKey)) {
+                    // Hapus file lama jika ada
+                    if ($pelamar->$fileKey) {
+                        Storage::disk('public')->delete($pelamar->$fileKey);
+                    }
+                    
+                    // Upload file baru ke folder 'berkas_pelamar' di storage public
+                    // store() akan mengembalikan path relatif (contoh: berkas_pelamar/namafile.jpg)
+                    $path = $request->file($fileKey)->store('berkas_pelamar', 'public');
+                    
+                    // Masukkan path string ke array data untuk disimpan ke DB
+                    $dataPelamar[$fileKey] = $path;
+                }
+            }
 
-            // 2. UPDATE DATA KELUARGA
-            // Hapus data lama, masukkan data baru (Cara termudah untuk update data tabel dinamis)
+            // 3. UPDATE TABEL PELAMAR (Dengan path file yang benar)
+            $pelamar->update($dataPelamar);
+
+            // 4. UPDATE TABEL KELUARGA
             PelamarKeluarga::where('pelamar_id', $pelamar->id_pelamar)->delete();
-            
             if ($request->has('keluarga')) {
                 foreach ($request->keluarga as $row) {
-                    // Hanya simpan jika nama tidak kosong
                     if (!empty($row['nama'])) {
                         $pelamar->keluarga()->create($row);
                     }
                 }
             }
 
-            // 3. UPDATE DATA PENDIDIKAN
+            // 5. UPDATE TABEL PENDIDIKAN
             PelamarPendidikan::where('pelamar_id', $pelamar->id_pelamar)->delete();
-
             if ($request->has('pendidikan')) {
                 foreach ($request->pendidikan as $row) {
                     if (!empty($row['nama_sekolah'])) {
@@ -67,9 +79,8 @@ class ProfileController extends Controller
                 }
             }
 
-            // 4. UPDATE DATA PEKERJAAN
+            // 6. UPDATE TABEL PEKERJAAN
             PelamarPekerjaan::where('pelamar_id', $pelamar->id_pelamar)->delete();
-
             if ($request->has('pekerjaan')) {
                 foreach ($request->pekerjaan as $row) {
                     if (!empty($row['nama_perusahaan'])) {
@@ -80,6 +91,6 @@ class ProfileController extends Controller
         });
 
         return redirect()->route('pelamar.profile.edit')
-                         ->with('success', 'Profil berhasil diperbarui. Data Anda siap digunakan untuk melamar.');
+                         ->with('success', 'Profil berhasil diperbarui!');
     }
 }

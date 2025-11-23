@@ -49,13 +49,13 @@
                             <p>Master Kriteria</p>
                         </a>
                     </li>
-                    <li class="nav-item">
+                    <!-- <li class="nav-item">
                         <a href="{{ route('admin.skala-nilai.index') }}" 
                            class="nav-link {{ request()->routeIs('admin.skala-nilai.*') ? 'active' : '' }}">
                             <i class="nav-icon fas fa-star-half-alt"></i>
                             <p>Master Skala Nilai</p>
                         </a>
-                    </li>
+                    </li> -->
                 
                     <li class="nav-header">REKRUTMEN</li>
                     <li class="nav-item">
@@ -71,6 +71,14 @@
                         class="nav-link {{ request()->routeIs('admin.seleksi.*') ? 'active' : '' }}">
                             <i class="nav-icon fas fa-chart-bar"></i>
                             <p>Seleksi & Perangkingan</p>
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a href="{{ route('admin.laporan.index') }}" 
+                        class="nav-link {{ request()->routeIs('admin.laporan.*') ? 'active' : '' }}">
+                            <i class="nav-icon fas fa-file-alt"></i>
+                            <p>Laporan Rekrutmen</p>
                         </a>
                     </li>
 
