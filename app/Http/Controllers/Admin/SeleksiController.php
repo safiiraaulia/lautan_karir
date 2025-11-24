@@ -79,11 +79,14 @@ class SeleksiController extends Controller
             }
         }
 
-        // 3. Cari Max Nilai (Normalisasi)
+       // 3. Cari Max Nilai (Normalisasi)
         $max_values = [];
         foreach ($kriterias as $kriteria) {
             $col = array_column($matriks_x, $kriteria->id_kriteria);
-            $max_values[$kriteria->id_kriteria] = $col ? max($col) : 1;
+            $max = $col ? max($col) : 0;
+
+            // FIX: jika max = 0 → set default 1 agar tidak ada pembagian 0
+            $max_values[$kriteria->id_kriteria] = ($max == 0 ? 1 : $max);
         }
 
         // 4. Hitung Nilai V (Preferensi)
@@ -91,13 +94,19 @@ class SeleksiController extends Controller
         foreach ($matriks_x as $id_lamaran => $nilai_kriterias) {
             $total = 0;
             foreach ($nilai_kriterias as $id_kriteria => $nilai) {
+
                 $pembagi = $max_values[$id_kriteria];
-                $bobot = $kriterias->where('id_kriteria', $id_kriteria)->first()->pivot->bobot_saw;
+
+                // FIX tambahan: jika bobot null atau 0 → jadikan minimal 1
+                $bobot = $kriterias->where('id_kriteria', $id_kriteria)->first()->pivot->bobot_saw ?? 1;
+                if ($bobot == 0) $bobot = 1;
+
                 // Rumus SAW: (Nilai / Max) * Bobot
                 $total += ($nilai / $pembagi) * $bobot;
             }
             $hasil_v[$id_lamaran] = round($total, 4);
         }
+
 
         // 5. Ranking
         arsort($hasil_v);
