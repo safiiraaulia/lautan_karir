@@ -82,6 +82,18 @@
                         </a>
                     </li>
 
+                    <!-- <li class="nav-item">
+                        <a href="{{ route('admin.pelamar.index') }}" 
+                           class="nav-link {{ request()->routeIs('admin.pelamar.*') ? 'active' : '' }}">
+                            <i class="nav-icon fas fa-users"></i>
+                            <p>Kelola Pelamar</p>
+                        </a>
+                    </li> -->
+                
+                @endif
+                @if(Auth::guard('admin')->user()->role === 'SUPER_ADMIN')
+                
+                    <li class="nav-header">Pengguna</li>
                     <li class="nav-item">
                         <a href="{{ route('admin.pelamar.index') }}" 
                            class="nav-link {{ request()->routeIs('admin.pelamar.*') ? 'active' : '' }}">
@@ -89,17 +101,12 @@
                             <p>Kelola Pelamar</p>
                         </a>
                     </li>
-                
-                @endif
-                @if(Auth::guard('admin')->user()->role === 'SUPER_ADMIN')
-                
-                    <li class="nav-header">ADMINISTRASI</li>
+
                     <li class="nav-item">
                         <a href="{{ route('admin.users.index') }}"
                            class="nav-link {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
-                            <i class="nav-icon fas fa-users-cog"></i>
-                            
-                            <p>Kelola User</p> 
+                            <i class="nav-icon fas fa-users-cog"></i> 
+                            <p>Kelola Admin</p> 
                             
                         </a>
                     </li>

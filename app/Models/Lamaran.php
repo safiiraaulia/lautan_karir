@@ -43,4 +43,9 @@ class Lamaran extends Model
     {
         return $this->hasMany(JawabanAdministrasi::class, 'lamaran_id', 'id_lamaran');
     }
+
+    public function hasilTes()
+    {
+        return $this->hasMany(HasilTes::class, 'lamaran_id', 'id_lamaran');
+    }
 }

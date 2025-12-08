@@ -41,7 +41,7 @@
                                 </a>
 
                                 <a href="{{ route('admin.posisi.edit', $row->kode_posisi) }}"
-                                   class="btn btn-warning btn-sm me-1">Info</a>
+                                   class="btn btn-warning btn-sm me-1">Edit</a>
 
                                 <form action="{{ route('admin.posisi.destroy', $row->kode_posisi) }}"
                                       method="POST"

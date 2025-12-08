@@ -77,15 +77,33 @@ class PosisiController extends Controller
     public function storeSaw(Request $request, Posisi $posisi)
     {
         $request->validate([
-            'kriteria' => 'nullable|array', // Bobot (W)
-            'skala' => 'nullable|array', // Skala Nilai (Cij)
+            'kriteria' => 'nullable|array',
+            'skala' => 'nullable|array',
         ]);
 
-        // 1. Simpan Bobot Kriteria (W)
+        // --- VALIDASI LOGIKA BOBOT (BARU) ---
+        $totalBobot = 0;
+        
+        // 1. Hitung total bobot dari item yang dicentang saja
+        if ($request->has('kriteria')) {
+            foreach ($request->kriteria as $id => $data) {
+                // Pastikan kriteria tersebut dicentang (ada key 'id') dan punya bobot
+                if (isset($data['id']) && isset($data['bobot'])) {
+                    $totalBobot += (float) $data['bobot'];
+                }
+            }
+        }
+
+        if (abs($totalBobot - 1) > 0.001) {
+            return back()
+                ->withInput()
+                ->with('error', 'CEK Gagal Menyimpan: Total Bobot (W) harus berjumlah 1. Total yang Anda masukkan: ' . $totalBobot);        }
+
         if ($request->has('kriteria')) {
             $bobotData = [];
             foreach ($request->kriteria as $kriteria_id => $data) {
-                if (!empty($data['bobot']) && $data['bobot'] > 0) {
+                // Hanya simpan yang dicentang
+                if (isset($data['id']) && !empty($data['bobot'])) {
                     $bobotData[$kriteria_id] = ['bobot_saw' => $data['bobot']];
                 }
             }
@@ -94,28 +112,33 @@ class PosisiController extends Controller
             $posisi->kriteria()->sync([]);
         }
 
-        // 2. Simpan Skala Nilai (Cij)
+        // 4. Simpan Skala Nilai (Cij)
         SkalaNilai::where('posisi_id', $posisi->kode_posisi)->delete();
         
         if ($request->has('skala')) {
             $skalaData = [];
             foreach ($request->skala as $kriteria_id => $skalas) {
-                foreach ($skalas as $skala) {
-                    if (!empty($skala['deskripsi']) && isset($skala['nilai'])) {
-                        $skalaData[] = [
-                            'posisi_id' => $posisi->kode_posisi,
-                            'kriteria_id' => $kriteria_id,
-                            'deskripsi' => $skala['deskripsi'],
-                            'nilai' => $skala['nilai'],
-                        ];
+                // Cek apakah kriteria induknya dicentang agar tidak nyimpan sampah
+                if (isset($request->kriteria[$kriteria_id]['id'])) {
+                    foreach ($skalas as $skala) {
+                        if (!empty($skala['deskripsi']) && isset($skala['nilai'])) {
+                            $skalaData[] = [
+                                'posisi_id' => $posisi->kode_posisi,
+                                'kriteria_id' => $kriteria_id,
+                                'deskripsi' => $skala['deskripsi'],
+                                'nilai' => $skala['nilai'],
+                            ];
+                        }
                     }
                 }
             }
-            SkalaNilai::insert($skalaData);
+            if(!empty($skalaData)) {
+                SkalaNilai::insert($skalaData);
+            }
         }
 
         return redirect()->route('admin.posisi.index')
-                         ->with('success', 'Data Kriteria & Skala Nilai untuk ' . $posisi->nama_posisi . ' berhasil disimpan.');
+                         ->with('success', 'Data Kriteria & Skala Nilai berhasil disimpan. Total Bobot = 1.');
     }
     /* ======================================================
     == BATAS METHOD BARU ==

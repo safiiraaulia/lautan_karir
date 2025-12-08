@@ -63,7 +63,6 @@ Route::middleware(['auth:admin'])->prefix('admin')->group(function () {
         Route::get('/settings', function () { return "Setting Sistem"; })->name('admin.settings');
     });
 
-    // GANTI DENGAN INI
     Route::resource('users', UserController::class, [
         'as' => 'admin'
     ]);

@@ -12,8 +12,15 @@
     <h4>Posisi: {{ $posisi->nama_posisi }} ({{ $posisi->kode_posisi }})</h4>
     <p class="text-muted">Atur Bobot (W) Kriteria dan Nilai Skala (Cij) sekaligus di halaman ini.</p>
 
-    @if (session('success'))
+   @if (session('success'))
         <div class="alert alert-success">{{ session('success') }}</div>
+    @endif
+
+    @if (session('error'))
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        {{ session('error') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
     @endif
     
     <div class="card">
@@ -166,5 +173,30 @@
             }
         });
     });
+
+    document.querySelector('form').addEventListener('submit', function(e) {
+        let total = 0;
+        
+        // Ambil semua checkbox yang dicentang
+        const checkboxes = document.querySelectorAll('.form-check-input:checked');
+        
+        checkboxes.forEach(chk => {
+            
+            const cardHeader = chk.closest('.card-header');
+            const bobotInput = cardHeader.querySelector('.bobot-input');
+            
+            if (bobotInput && bobotInput.value) {
+                total += parseFloat(bobotInput.value);
+            }
+        });
+
+        total = Math.round(total * 100) / 100;
+
+        if (total !== 1) {
+            e.preventDefault(); 
+            alert('PERINGATAN: Total Bobot belum bernilai 1.\n\nTotal saat ini: ' + total);
+        }
+    });
+
 </script>
 @endsection
