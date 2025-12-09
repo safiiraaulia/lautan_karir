@@ -97,7 +97,7 @@ class PosisiController extends Controller
         if (abs($totalBobot - 1) > 0.001) {
             return back()
                 ->withInput()
-                ->with('error', 'CEK Gagal Menyimpan: Total Bobot (W) harus berjumlah 1. Total yang Anda masukkan: ' . $totalBobot);        }
+                ->with('error', 'Gagal Menyimpan: Total Bobot (W) harus berjumlah 1. Total yang Anda masukkan: ' . $totalBobot);        }
 
         if ($request->has('kriteria')) {
             $bobotData = [];
