@@ -9,51 +9,67 @@
     </div>
 
     @if (session('success'))
-        <div class="alert alert-success">{{ session('success') }}</div>
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            {{ session('success') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
     @endif
 
-    <div class="card">
+    <div class="card shadow-sm border-0">
         <div class="card-body">
 
-            <table class="table table-bordered table-striped">
-                <thead class="table-dark">
-                    <tr>
-                        <th width="50">No</th>
-                        <th>Nama Kriteria</th>
-                        <th>Jenis</th>
-                        <th>Bobot SAW</th>
-                        <th width="150">Aksi</th>
-                    </tr>
-                </thead>
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped align-middle">
+                    <thead class="table-dark">
+                        <tr>
+                            <th width="50">No</th>
+                            <th width="20%">Nama Kriteria</th>
+                            <th>Pertanyaan (Untuk Pelamar)</th>
+                            <th width="150">Jenis</th>
+                            <th width="150">Aksi</th>
+                        </tr>
+                    </thead>
 
-                <tbody>
-                    @forelse ($kriterias as $kriteria)
-                    <tr>
-                        <td>{{ $loop->iteration }}</td>
-                        <td>{{ $kriteria->nama_kriteria }}</td>
-                        <td>{{ $kriteria->jenis }}</td>
-                        <td>{{ $kriteria->bobot_saw }}</td>
-                        <td>
-                            <a href="{{ route('admin.kriteria.edit', $kriteria->id_kriteria) }}" class="btn btn-warning btn-sm">Edit</a>
+                    <tbody>
+                        @forelse ($kriterias as $kriteria)
+                        <tr>
+                            <td class="text-center">{{ $loop->iteration }}</td>
+                            
+                            <td>{{ $kriteria->nama_kriteria }}</td>
+                            
+                            <td class="text-muted small">
+                                {{ $kriteria->pertanyaan ?? '-' }}
+                            </td>
+                            
+                            <td>
+                                <span class="badge {{ $kriteria->jenis == 'Benefit' ? 'bg-success' : 'bg-danger' }}">
+                                    {{ $kriteria->jenis }}
+                                </span>
+                            </td>
+                            
+                            <td>
+                                <a href="{{ route('admin.kriteria.edit', $kriteria->id_kriteria) }}" class="btn btn-warning btn-sm">Edit</a>
 
-                            <form action="{{ route('admin.kriteria.destroy', $kriteria->id_kriteria) }}"
-                                  method="POST"
-                                  class="d-inline"
-                                  onsubmit="return confirm('Yakin ingin menghapus data ini?')">
-                                @csrf
-                                @method('DELETE')
-                                <button class="btn btn-danger btn-sm">Hapus</button>
-                            </form>
-                        </td>
-                    </tr>
-                    @empty
-                    <tr>
-                        <td colspan="5" class="text-center">Data kriteria masih kosong.</td>
-                    </tr>
-                    @endforelse
-                </tbody>
-
-            </table>
+                                <form action="{{ route('admin.kriteria.destroy', $kriteria->id_kriteria) }}"
+                                      method="POST"
+                                      class="d-inline"
+                                      onsubmit="return confirm('Yakin ingin menghapus data ini?')">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button class="btn btn-danger btn-sm">Hapus</button>
+                                </form>
+                            </td>
+                        </tr>
+                        @empty
+                        <tr>
+                            <td colspan="5" class="text-center py-4 text-muted">
+                                Data kriteria masih kosong.
+                            </td>
+                        </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
 
         </div>
     </div>

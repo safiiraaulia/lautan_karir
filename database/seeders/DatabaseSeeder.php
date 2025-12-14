@@ -17,5 +17,20 @@ class DatabaseSeeder extends Seeder
             AdminSeeder::class,
             DealerSeeder::class,
         ]);
+
+        $this->command->info('🧠 Seeding Master Data Tes...');
+        
+        $this->call([
+            // 1. Jenis Tes (Papikostik & Kepribadian)
+            JenisTesSeeder::class,
+            
+            // 2. Aspek & Dimensi
+            PapikostikAspekSeeder::class,
+            KepribadianDimensiSeeder::class,
+            
+            // 3. Soal Dummy (10 soal masing-masing)
+            SoalPapikostikDummySeeder::class,
+            SoalKepribadianDummySeeder::class,
+        ]);
     }
 }

@@ -20,23 +20,23 @@ class PelamarLoginController extends Controller
 
     public function login(Request $request)
     {
+        // 1. Ubah validasi dari 'username' menjadi 'email'
         $this->validate($request, [
-            'username' => 'required|string',
+            'email'   => 'required|email', // Wajib format email
             'password' => 'required|min:6'
         ]);
 
-        // Cek login menggunakan email, password, DAN is_active=1
+        // 2. Ubah kredensial yang dicek
         if (Auth::guard('pelamar')->attempt([
-            'username' => $request->username, 
-            'password' => $request->password,
-            'is_active' => 1 // Hanya yang aktif yang bisa login
+            'email' => $request->email, // Cek kolom email
+            'password' => $request->password
         ], $request->get('remember'))) {
 
             return redirect()->intended(route('pelamar.dashboard'));
         }
 
         return back()->withInput($request->only('email', 'remember'))
-                     ->withErrors(['email' => 'Email/Password salah atau akun dinonaktifkan.']);
+                    ->with('error', 'Email atau Password salah.');
     }
 
     public function logout(Request $request)

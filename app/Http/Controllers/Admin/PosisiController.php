@@ -49,31 +49,37 @@ class PosisiController extends Controller
     == METHOD BARU UNTUK HALAMAN SETUP SAW (SUDAH BENAR) ==
     ======================================================
     */
+    /* ======================================================
+       UPDATE BAGIAN INI DI PosisiController.php
+       ====================================================== */
+
     public function setupSaw(Posisi $posisi)
     {
         $kriterias = Kriteria::orderBy('nama_kriteria')->get();
 
-        $bobot_tersimpan = $posisi->kriteria()
+        // UBAH DISINI: Kita ambil Bobot DAN Syarat sekaligus
+        $pivot_tersimpan = $posisi->kriteria()
             ->get()
             ->mapWithKeys(function ($item) {
-                return [$item->id_kriteria => $item->pivot->bobot_saw];
+                return [$item->id_kriteria => [
+                    'bobot'  => $item->pivot->bobot_saw,
+                    'syarat' => $item->pivot->syarat // <-- Tambahan baru
+                ]];
             })->toArray();
 
         $skala_tersimpan = SkalaNilai::where('posisi_id', $posisi->kode_posisi)
             ->get()
             ->groupBy('kriteria_id'); 
 
+        // Variable dikirim ke view sebagai 'pivot_tersimpan'
         return view('admin.posisi.setup_saw', compact(
             'posisi', 
             'kriterias', 
-            'bobot_tersimpan', 
+            'pivot_tersimpan', 
             'skala_tersimpan'
         ));
     }
 
-    /**
-     * Menyimpan data Bobot (W) dan Skala Nilai (Cij).
-     */
     public function storeSaw(Request $request, Posisi $posisi)
     {
         $request->validate([
@@ -81,13 +87,10 @@ class PosisiController extends Controller
             'skala' => 'nullable|array',
         ]);
 
-        // --- VALIDASI LOGIKA BOBOT (BARU) ---
+        // 1. Validasi Total Bobot (Logic tetap sama)
         $totalBobot = 0;
-        
-        // 1. Hitung total bobot dari item yang dicentang saja
         if ($request->has('kriteria')) {
             foreach ($request->kriteria as $id => $data) {
-                // Pastikan kriteria tersebut dicentang (ada key 'id') dan punya bobot
                 if (isset($data['id']) && isset($data['bobot'])) {
                     $totalBobot += (float) $data['bobot'];
                 }
@@ -97,28 +100,33 @@ class PosisiController extends Controller
         if (abs($totalBobot - 1) > 0.001) {
             return back()
                 ->withInput()
-                ->with('error', 'Gagal Menyimpan: Total Bobot (W) harus berjumlah 1. Total yang Anda masukkan: ' . $totalBobot);        }
+                ->with('error', 'Gagal Menyimpan: Total Bobot (W) harus berjumlah 1. Total saat ini: ' . $totalBobot);
+        }
 
+        // 2. Simpan Data Pivot (Bobot & Syarat)
         if ($request->has('kriteria')) {
-            $bobotData = [];
+            $pivotData = [];
             foreach ($request->kriteria as $kriteria_id => $data) {
                 // Hanya simpan yang dicentang
                 if (isset($data['id']) && !empty($data['bobot'])) {
-                    $bobotData[$kriteria_id] = ['bobot_saw' => $data['bobot']];
+                    $pivotData[$kriteria_id] = [
+                        'bobot_saw' => $data['bobot'],
+                        'syarat'    => $data['syarat'] ?? null // <-- Simpan Syarat disini
+                    ];
                 }
             }
-            $posisi->kriteria()->sync($bobotData);
+            // Sync data ke tabel kriteria_posisi
+            $posisi->kriteria()->sync($pivotData);
         } else {
             $posisi->kriteria()->sync([]);
         }
 
-        // 4. Simpan Skala Nilai (Cij)
+        // 3. Simpan Skala Nilai (Logic tetap sama)
         SkalaNilai::where('posisi_id', $posisi->kode_posisi)->delete();
         
         if ($request->has('skala')) {
             $skalaData = [];
             foreach ($request->skala as $kriteria_id => $skalas) {
-                // Cek apakah kriteria induknya dicentang agar tidak nyimpan sampah
                 if (isset($request->kriteria[$kriteria_id]['id'])) {
                     foreach ($skalas as $skala) {
                         if (!empty($skala['deskripsi']) && isset($skala['nilai'])) {
@@ -138,7 +146,7 @@ class PosisiController extends Controller
         }
 
         return redirect()->route('admin.posisi.index')
-                         ->with('success', 'Data Kriteria & Skala Nilai berhasil disimpan. Total Bobot = 1.');
+                         ->with('success', 'Kriteria, Bobot, dan Syarat berhasil disimpan.');
     }
     /* ======================================================
     == BATAS METHOD BARU ==

@@ -56,25 +56,34 @@
                                 </thead>
                                 <tbody>
                                     @php
-                                        $statusMap = [
-                                            'Proses Administrasi' => ['bg-soft-warning text-warning-dark', 'fas fa-spinner', 'Proses Administrasi'],
-                                            'Lolos Administrasi' => ['bg-soft-success text-success', 'fas fa-check-circle', 'Lolos Seleksi'],
-                                            'Gagal Administrasi' => ['bg-soft-danger text-danger', 'fas fa-times-circle', 'Tidak Lolos']
-                                        ];
-                                    @endphp
+                                    $statusMap = [
+                                        'Proses Seleksi' => ['bg-soft-warning text-warning-dark', 'fas fa-clock', 'Proses Seleksi'],
+                                        'Lolos Seleksi'  => ['bg-soft-success text-success', 'fas fa-check-circle', 'Lolos Seleksi'],
+                                        'Gagal Seleksi'  => ['bg-soft-danger text-danger', 'fas fa-times-circle', 'Gagal Seleksi'],
+                                    ];
+                                @endphp
+
                                     @foreach($lamarans as $lamaran)
-                                    <tr>
-                                        <td class="ps-4 py-3">
-                                            <div class="fw-bold text-navy">{{ $lamaran->lowongan->posisi->nama_posisi }}</div>
-                                            <div class="small text-muted"><i class="far fa-building me-1"></i> {{ $lamaran->lowongan->dealer->nama_dealer }}</div>
-                                        </td>
-                                        <td class="py-3 text-muted small">{{ $lamaran->tgl_melamar->locale('id')->isoFormat('D MMM Y') }}</td>
-                                        <td class="py-3 text-end pe-4">
-                                            @php $s = $statusMap[$lamaran->status] ?? ['bg-secondary', '', $lamaran->status]; @endphp
-                                            <span class="badge {{ $s[0] }} rounded-pill px-3"><i class="{{ $s[1] }} me-1 small"></i> {{ $s[2] }}</span>
-                                        </td>
-                                    </tr>
-                                    @endforeach
+                                        <tr>
+                                            <td class="ps-4 py-3">
+                                                <div class="fw-bold text-navy">{{ $lamaran->lowongan->posisi->nama_posisi }}</div>
+                                                <div class="small text-muted"><i class="far fa-building me-1"></i> {{ $lamaran->lowongan->dealer->nama_dealer }}</div>
+                                            </td>
+                                            <td class="py-3 text-muted small">{{ $lamaran->tgl_melamar->locale('id')->isoFormat('D MMM Y') }}</td>
+                                            <td class="py-3 text-end pe-4">
+                                            @php
+                                                $s = $statusMap[$lamaran->status] ?? ['bg-secondary text-white', 'fas fa-question-circle', $lamaran->status];
+                                            @endphp
+                                                <span class="badge {{ $s[0] }} rounded-pill px-3">
+                                                    <i class="{{ $s[1] }} me-1 small"></i> {{ $s[2] }}
+                                                </span>
+                                                
+                                                @if($lamaran->is_read === false && !in_array($lamaran->status, ['Pending', 'Sedang Diproses']))
+                                                    <span class="badge bg-danger rounded-circle p-1 ms-1" title="Hasil Seleksi Terbaru"></span>
+                                                @endif
+                                            </td>
+                                        </tr>
+                                        @endforeach
                                 </tbody>
                             </table>
                         </div>
@@ -92,6 +101,33 @@
     </div>
 </div>
 
+{{-- SCRIPT UNTUK MENANDAI NOTIFIKASI SUDAH DIBACA --}}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const unreadCount = document.querySelectorAll('.badge.bg-danger.rounded-circle').length;
+        
+        // Hanya jalankan jika ada notifikasi merah yang muncul
+        if (unreadCount > 0) {
+            // Asumsi: Anda membuat route baru: pelamar/mark-read di file web.php
+            fetch('{{ route('pelamar.markRead') }}', {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => {
+                if (response.ok) {
+                    console.log('Notifikasi ditandai sudah dibaca.');
+                }
+            })
+            .catch(error => {
+                console.error('Gagal menandai notifikasi:', error);
+            });
+        }
+    });
+</script>
+
 <style>
     .text-navy { color: #103783 !important; }
     .bg-navy { background-color: #103783 !important; }
@@ -100,8 +136,10 @@
     .btn-outline-navy { color: #103783; border-color: #103783; }
     .btn-outline-navy:hover { background-color: #103783; color: #fff; }
     .bg-soft-warning { background-color: #fffbeb; } .text-warning-dark { color: #b45309; }
+    .bg-soft-info { background-color: #e0f2fe; } .text-info-dark { color: #075985; }
     .bg-soft-success { background-color: #ecfdf5; } .text-success { color: #047857 !important; }
     .bg-soft-danger { background-color: #fef2f2; } .text-danger { color: #b91c1c !important; }
+    .bg-soft-primary { background-color: #eff6ff; } .text-primary { color: #1d4ed8 !important; }
     .transition-btn { transition: all 0.3s ease; }
     .transition-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
 </style>

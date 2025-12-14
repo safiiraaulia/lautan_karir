@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth; // Tambahan agar Auth::guard tidak error
 use App\Http\Controllers\Auth\AdminLoginController;
 use App\Http\Controllers\Auth\PelamarLoginController;
 use App\Http\Controllers\Auth\PelamarRegisterController;
@@ -15,12 +16,11 @@ use App\Http\Controllers\Admin\SeleksiController;
 use App\Http\Controllers\Front\LowonganController as PublicLowonganController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\LaporanController;
+use App\Http\Controllers\Pelamar\LamaranController;
+use App\Http\Controllers\Pelamar\ProfileController;
 
-/*
-|--------------------------------------------------------------------------
-| PUBLIC ROUTES
-|--------------------------------------------------------------------------
-*/
+
+
 /*
 |--------------------------------------------------------------------------
 | PUBLIC ROUTES (Bisa diakses tanpa login)
@@ -30,6 +30,16 @@ use App\Http\Controllers\Admin\LaporanController;
 Route::get('/', [PublicLowonganController::class, 'index'])->name('home');
 Route::get('/lowongan', [PublicLowonganController::class, 'index'])->name('lowongan.index');
 Route::get('/lowongan/{lowongan}', [PublicLowonganController::class, 'show'])->name('lowongan.show');
+
+/*
+|--------------------------------------------------------------------------
+| API Route for Sidebar Detail (AJAX)
+|--------------------------------------------------------------------------
+| Route ini menghubungkan JavaScript di halaman depan dengan
+| method 'detail' di Controller PublicLowonganController.
+*/
+Route::get('/lowongan/{id}/detail', [PublicLowonganController::class, 'detail'])->name('lowongan.detail.ajax');
+
 
 /*
 |--------------------------------------------------------------------------
@@ -52,8 +62,6 @@ Route::middleware(['auth:admin'])->prefix('admin')->group(function () {
 
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
 
-    
-
     /*
     |--------------------------------------------------------------------------
     | SUPER_ADMIN ONLY
@@ -72,7 +80,7 @@ Route::middleware(['auth:admin'])->prefix('admin')->group(function () {
     | SUPER_ADMIN & HRD
     |--------------------------------------------------------------------------
     */
-        Route::middleware(['role:SUPER_ADMIN,HRD'])->group(function () {
+    Route::middleware(['role:SUPER_ADMIN,HRD'])->group(function () {
 
         // MASTER DEALER
         Route::resource('dealer', DealerController::class, [
@@ -114,7 +122,6 @@ Route::middleware(['auth:admin'])->prefix('admin')->group(function () {
             Route::post('/{lamaran}/update-status', [SeleksiController::class, 'updateStatus'])->name('updateStatus');
             Route::post('/{lowongan}/simpan-ranking', [SeleksiController::class, 'simpanRanking'])->name('simpanRanking');
         });
-
        
         Route::get('/laporan', [LaporanController::class, 'index'])->name('admin.laporan.index');
         Route::get('/laporan/cetak', [LaporanController::class, 'cetak'])->name('admin.laporan.cetak');
@@ -124,7 +131,6 @@ Route::middleware(['auth:admin'])->prefix('admin')->group(function () {
         Route::post('pelamar/{pelamar}/toggle-status', [PelamarController::class, 'toggleStatus'])->name('admin.pelamar.toggleStatus');
 
         // MENU LAIN (masih placeholder)
-       
         Route::get('/paket-tes', fn() => "Halaman Master Paket Tes")->name('admin.paket_tes.index');
         Route::get('/lamaran', fn() => "Halaman Review Lamaran")->name('admin.lamaran.index');
         Route::get('/hasil-tes', fn() => "Halaman Hasil Tes")->name('admin.hasil_tes.index');
@@ -134,48 +140,82 @@ Route::middleware(['auth:admin'])->prefix('admin')->group(function () {
 
 /*
 |--------------------------------------------------------------------------
-| PELAMAR ROUTES
+| PELAMAR ROUTES (PUBLIC — TANPA AUTH)
 |--------------------------------------------------------------------------
 */
 
-// Route Tamu (Guest) - Register & Login
-Route::group(['middleware' => 'guest:pelamar'], function () {
-    Route::get('/pelamar/register', [PelamarRegisterController::class, 'showRegistrationForm'])->name('pelamar.register');
-    Route::post('/pelamar/register', [PelamarRegisterController::class, 'register']);
+// REGISTER
+Route::get('/pelamar/register', [PelamarRegisterController::class, 'showRegistrationForm'])
+    ->name('pelamar.register');
 
-    Route::get('/pelamar/login', [PelamarLoginController::class, 'showLoginForm'])->name('pelamar.login');
-    Route::post('/pelamar/login', [PelamarLoginController::class, 'login']);
-});
+Route::post('/pelamar/register', [PelamarRegisterController::class, 'register']);
 
-// Route Logout (Butuh Auth)
-Route::post('/pelamar/logout', [PelamarLoginController::class, 'logout'])->name('pelamar.logout')->middleware('auth:pelamar');
+// LOGIN
+Route::get('/pelamar/login', [PelamarLoginController::class, 'showLoginForm'])
+    ->name('pelamar.login');
 
-// Route Halaman Utama Pelamar (Butuh Auth)
-Route::middleware(['auth:pelamar'])->prefix('pelamar')->name('pelamar.')->group(function () {
-    
-    // --- DASHBOARD ---
-    Route::get('/dashboard', function () {
-        $pelamar = Auth::guard('pelamar')->user();
+Route::post('/pelamar/login', [PelamarLoginController::class, 'login']);
 
-        // 1. Cek Kelengkapan Profil
-        $isProfileComplete = !empty($pelamar->nama) && 
-                             !empty($pelamar->nomor_whatsapp) && 
-                             !empty($pelamar->path_cv);
+// LOGOUT (butuh auth)
+Route::post('/pelamar/logout', [PelamarLoginController::class, 'logout'])
+    ->name('pelamar.logout')
+    ->middleware('auth:pelamar');
 
-        // 2. Ambil Riwayat Lamaran
-        $lamarans = \App\Models\Lamaran::with(['lowongan.posisi', 'lowongan.dealer'])
-                        ->where('pelamar_id', $pelamar->id_pelamar)
-                        ->latest('tgl_melamar')
-                        ->get();
 
-        return view('pelamar.dashboard', compact('pelamar', 'isProfileComplete', 'lamarans'));
-    })->name('dashboard');
 
-    // --- PROFILE ---
-    Route::get('/profile', [App\Http\Controllers\Pelamar\ProfileController::class, 'edit'])->name('profile.edit');
-    Route::put('/profile', [App\Http\Controllers\Pelamar\ProfileController::class, 'update'])->name('profile.update');
-    
-    // --- PROSES LAMARAN ---
-    Route::get('/lamar/{lowongan}', [App\Http\Controllers\Pelamar\LamaranController::class, 'create'])->name('lamaran.create');
-    Route::post('/lamar/{lowongan}', [App\Http\Controllers\Pelamar\LamaranController::class, 'store'])->name('lamaran.store');
-});
+/*
+|--------------------------------------------------------------------------
+| PELAMAR ROUTES (BUTUH AUTHENTIKASI)
+|--------------------------------------------------------------------------
+*/
+
+Route::middleware(['auth:pelamar'])
+    ->prefix('pelamar')
+    ->name('pelamar.')
+    ->group(function () {
+
+        // --- DASHBOARD ---
+        Route::get('/dashboard', function () {
+
+            $pelamar = Auth::guard('pelamar')->user();
+
+            // CEK KELENGKAPAN PROFIL
+            $isProfileComplete = 
+                !empty($pelamar->nama) && 
+                !empty($pelamar->nomor_whatsapp) && 
+                !empty($pelamar->path_cv);
+
+            // RIWAYAT LAMARAN
+            $lamarans = \App\Models\Lamaran::with(['lowongan.posisi', 'lowongan.dealer'])
+                ->where('pelamar_id', $pelamar->id_pelamar)
+                ->whereHas('lowongan', fn($q) => $q->whereHas('posisi'))
+                ->latest('tgl_melamar')
+                ->get();
+
+            // 🔥 JUMLAH NOTIFIKASI (BELUM DIBACA)
+            $unread = \App\Models\Lamaran::where('pelamar_id', $pelamar->id_pelamar)
+                ->where('is_read', 0)
+                ->count();
+
+            return view('pelamar.dashboard', compact(
+                'pelamar',
+                'isProfileComplete',
+                'lamarans',
+                'unread'
+            ));
+
+        })->name('dashboard');
+
+
+        // PROFILE
+        Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+        Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
+
+        // PROSES LAMARAN
+        Route::get('/lamar/{lowongan}', [LamaranController::class, 'create'])->name('lamaran.create');
+        Route::post('/lamar/{lowongan}', [LamaranController::class, 'store'])->name('lamaran.store');
+
+        // MARK READ NOTIFICATION  ✅ INI YANG PENTING
+        Route::post('/dashboard/mark-read', [LamaranController::class, 'markRead'])
+            ->name('markRead'); // BENAR
+    });

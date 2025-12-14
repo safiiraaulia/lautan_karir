@@ -21,7 +21,7 @@
 
     <div class="login-card card">
         <div class="card-header text-center">
-            <img src="{{ asset('img/logo_lautanteduhinterniaga.jpeg') }}" alt="Logo" height="45" class="mb-3">
+            <img src="{{ asset('img/logo.PNG') }}" alt="Logo" height="130" class="mb-3">
             <h5 class="fw-bold text-dark mb-0">Portal Administrator</h5>
             <small class="text-muted">Silakan login untuk mengelola sistem</small>
         </div>

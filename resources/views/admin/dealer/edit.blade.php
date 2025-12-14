@@ -43,7 +43,7 @@
                     @enderror
                 </div>
 
-                <button type="submit" class="btn btn-primary">Update</button>
+                <button type="submit" class="btn btn-primary">Simpan</button>
                 <a href="{{ route('admin.dealer.index') }}" class="btn btn-secondary">Batal</a>
             </form>
         </div>

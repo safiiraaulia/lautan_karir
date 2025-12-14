@@ -19,7 +19,8 @@ class LaporanController extends Controller
         $lowongans = Lowongan::with('posisi', 'dealer')->latest()->get();
         
         // Query Dasar Lamaran
-        $query = Lamaran::with(['pelamar', 'lowongan.posisi', 'lowongan.dealer']);
+        $query = Lamaran::with(['pelamar', 'lowongan.posisi', 'lowongan.dealer'])
+            ->whereHas('lowongan');
 
         // --- LOGIKA FILTER ---
         

@@ -14,20 +14,15 @@ class Authenticate extends Middleware
      */
     protected function redirectTo($request)
     {
-        if (!$request->expectsJson()) {
-
-            // Jika akses halaman admin tanpa login
-            if ($request->is('admin/*')) {
+        if (! $request->expectsJson()) {
+            
+            // Jika URL mengandung kata 'admin', lempar ke Login Admin
+            if ($request->is('admin') || $request->is('admin/*')) {
                 return route('admin.login');
             }
 
-            // Jika akses halaman pelamar tanpa login
-            if ($request->is('pelamar/*')) {
-                return route('pelamar.login');
-            }
-
-            // Default (kalau ada)
-            return route('login');
+            // Sisanya (Pelamar), lempar ke Login Pelamar
+            return route('pelamar.login');
         }
     }
 }

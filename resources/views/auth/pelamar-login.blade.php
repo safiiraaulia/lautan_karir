@@ -10,7 +10,7 @@
                 <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
                     <div class="card-header bg-navy text-white text-center py-4 border-0" style="background: linear-gradient(135deg, #103783 0%, #4b6cb7 100%);">
                         <h4 class="fw-bold mb-0 text-white">Login Pelamar</h4>
-                        <small class="opacity-75">Silakan masuk untuk melanjutkan</small>
+                        <small class="opacity-75">Silakan masuk menggunakan Email Anda</small>
                     </div>
 
                     <div class="card-body p-4 p-md-5 bg-white">
@@ -22,10 +22,24 @@
 
                         <form method="POST" action="{{ route('pelamar.login') }}">
                             @csrf
+                            
+                            {{-- PERUBAHAN DISINI: Menggunakan Email sebagai input --}}
                             @php
                                 $fields = [
-                                    ['name' => 'username', 'label' => 'Username', 'type' => 'text', 'icon' => 'user', 'ph' => 'Masukkan username'],
-                                    ['name' => 'password', 'label' => 'Password', 'type' => 'password', 'icon' => 'lock', 'ph' => '••••••••']
+                                    [
+                                        'name' => 'email', 
+                                        'label' => 'Alamat Email', 
+                                        'type' => 'email', 
+                                        'icon' => 'envelope', 
+                                        'ph' => 'contoh@email.com'
+                                    ],
+                                    [
+                                        'name' => 'password', 
+                                        'label' => 'Password', 
+                                        'type' => 'password', 
+                                        'icon' => 'lock', 
+                                        'ph' => '••••••••'
+                                    ]
                                 ];
                             @endphp
 
@@ -33,10 +47,22 @@
                                 <div class="mb-4">
                                     <label for="{{ $f['name'] }}" class="form-label fw-bold text-navy small text-uppercase">{{ $f['label'] }}</label>
                                     <div class="input-group">
-                                        <span class="input-group-text bg-light border-end-0 text-muted rounded-start-3 ps-3"><i class="fas fa-{{ $f['icon'] }}"></i></span>
-                                        <input id="{{ $f['name'] }}" type="{{ $f['type'] }}" class="form-control border-start-0 bg-light py-2 ps-2 rounded-end-3 @error($f['name']) is-invalid @enderror" name="{{ $f['name'] }}" value="{{ $f['type']!='password'?old($f['name']):'' }}" required autocomplete="{{ $f['name']=='password'?'current-password':$f['name'] }}" {{ $loop->first?'autofocus':'' }} placeholder="{{ $f['ph'] }}">
+                                        <span class="input-group-text bg-light border-end-0 text-muted rounded-start-3 ps-3">
+                                            <i class="fas fa-{{ $f['icon'] }}"></i>
+                                        </span>
+                                        <input id="{{ $f['name'] }}" 
+                                               type="{{ $f['type'] }}" 
+                                               class="form-control border-start-0 bg-light py-2 ps-2 rounded-end-3 @error($f['name']) is-invalid @enderror" 
+                                               name="{{ $f['name'] }}" 
+                                               value="{{ $f['type']!='password' ? old($f['name']) : '' }}" 
+                                               required 
+                                               autocomplete="{{ $f['name'] }}" 
+                                               {{ $loop->first ? 'autofocus' : '' }} 
+                                               placeholder="{{ $f['ph'] }}">
                                     </div>
-                                    @error($f['name']) <span class="text-danger small mt-1 d-block"><strong>{{ $message }}</strong></span> @enderror
+                                    @error($f['name']) 
+                                        <span class="text-danger small mt-1 d-block"><strong>{{ $message }}</strong></span> 
+                                    @enderror
                                 </div>
                             @endforeach
 
@@ -51,7 +77,9 @@
                             </div>
 
                             <div class="d-grid mb-4">
-                                <button type="submit" class="btn btn-navy btn-lg rounded-pill fw-bold shadow-sm transition-btn">Masuk Sekarang <i class="fas fa-arrow-right ms-2 small"></i></button>
+                                <button type="submit" class="btn btn-navy btn-lg rounded-pill fw-bold shadow-sm transition-btn">
+                                    Masuk Sekarang <i class="fas fa-arrow-right ms-2 small"></i>
+                                </button>
                             </div>
 
                             <div class="text-center">

@@ -10,16 +10,25 @@ class JawabanAdministrasi extends Model
     use HasFactory;
     
     protected $table = 'jawaban_administrasi';
-    protected $primaryKey = 'id_jawaban';
-    public $timestamps = false; // Tabel ini tidak butuh created_at/updated_at
+    
+    // KOREKSI 1: Primary Key
+    // Sesuai perintah SQL "CREATE TABLE" sebelumnya, kolom ID bernama 'id'. 
+    // Kecuali Anda mengubahnya manual jadi 'id_jawaban', gunakan 'id'.
+    protected $primaryKey = 'id'; 
+
+    // KOREKSI 2: Timestamps
+    // Tadi kita sudah menjalankan "ADD COLUMN created_at...", 
+    // jadi ini harus TRUE agar tanggal tercatat otomatis.
+    public $timestamps = true; 
 
     /**
      * Kolom yang boleh diisi secara massal.
      */
     protected $fillable = [
-        'lamaran_id',      // <-- Ini yang menyebabkan error Anda
+        'lamaran_id',     
         'kriteria_id',
         'skala_nilai_id', 
+        'nilai', // KOREKSI 3: Wajib ada agar angka bobot (1-5) tersimpan
     ];
 
     // --- RELASI ---
@@ -34,7 +43,8 @@ class JawabanAdministrasi extends Model
         return $this->belongsTo(Kriteria::class, 'kriteria_id', 'id_kriteria');
     }
 
-    public function skalaNilai()
+    // Saya ubah namanya jadi 'skala' (singkat) agar konsisten dengan Controller
+    public function skala()
     {
         return $this->belongsTo(SkalaNilai::class, 'skala_nilai_id', 'id_skala');
     }

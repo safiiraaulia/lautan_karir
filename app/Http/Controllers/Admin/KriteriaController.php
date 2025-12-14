@@ -61,7 +61,7 @@ class KriteriaController extends Controller
         $validatedData = $request->validate([
             'nama_kriteria' => 'required|string|max:255',
             'jenis' => 'required|in:Benefit,Cost',
-            'bobot_saw' => 'required|numeric|min:0', // Pastikan validasi Anda ada
+            'pertanyaan' => 'required|string|max:500',
         ]);
 
         $kriteria->update($validatedData);

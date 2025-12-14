@@ -23,7 +23,7 @@ class Kriteria extends Model
     protected $fillable = [
         'nama_kriteria',
         'jenis',
-        'bobot_saw' // <-- Kita biarkan saja dulu
+        'pertanyaan',
     ];
     // ======================================================
 

@@ -8,23 +8,24 @@ use Illuminate\Database\Eloquent\Model;
 class Lamaran extends Model
 {
     use HasFactory;
-    protected $table = 'lamaran';
-    protected $primaryKey = 'id_lamaran';
 
-    /**
-     * Kolom yang boleh diisi secara massal (create/update).
-     * Tambahkan semua kolom tabel di sini.
-     */
+    protected $table = 'lamaran';
+    
+    // Pastikan ini sesuai dengan database (id_lamaran)
+    protected $primaryKey = 'id_lamaran'; 
+
     protected $fillable = [
         'pelamar_id',  
         'lowongan_id',
         'tgl_melamar',
         'status',
-        'nilai_saw',
+        // 'nilai_saw', // Kolom ini opsional, aktifkan jika Anda sudah membuat kolom 'nilai_saw' di tabel lamaran
+        'is_read',
     ];
 
     protected $casts = [
         'tgl_melamar' => 'date',
+        'is_read' => 'boolean',
     ];
 
     // --- RELASI ---
@@ -39,8 +40,13 @@ class Lamaran extends Model
         return $this->belongsTo(Lowongan::class, 'lowongan_id', 'id_lowongan');
     }
 
-    public function jawabanAdministrasi()
+    /**
+     * PERBAIKAN: Ubah nama fungsi dari 'jawabanAdministrasi' menjadi 'jawaban'
+     * Agar sesuai dengan pemanggilan di SeleksiController ($lamaran->jawaban)
+     */
+    public function jawaban()
     {
+        // Pastikan Model JawabanAdministrasi sudah dibuat
         return $this->hasMany(JawabanAdministrasi::class, 'lamaran_id', 'id_lamaran');
     }
 

@@ -17,29 +17,27 @@ class RedirectIfAuthenticated
      * @return mixed
      */
     public function handle($request, Closure $next, ...$guards)
-{
-    $guards = empty($guards) ? [null] : $guards;
+    {
+        $guards = empty($guards) ? [null] : $guards;
 
-    foreach ($guards as $guard) {
-        if (Auth::guard($guard)->check()) {
+        foreach ($guards as $guard) {
+            if (Auth::guard($guard)->check()) {
+                
+                // JIKA YANG LOGIN ADALAH ADMIN
+                if ($guard === 'admin') {
+                    return redirect()->route('admin.dashboard');
+                }
 
-            $user = Auth::guard($guard)->user();
-
-            // SUPER ADMIN & HR
-            if ($user->role === 'SUPER_ADMIN' || $user->role === 'HR_PUSAT') {
-                return redirect('/admin/dashboard');
+                // JIKA YANG LOGIN ADALAH PELAMAR
+                if ($guard === 'pelamar') {
+                    return redirect()->route('pelamar.dashboard');
+                }
+                
+                // DEFAULT (Jaga-jaga)
+                return redirect('/');
             }
-
-            // PELAMAR
-            if ($user->role === 'pelamar') {
-                return redirect('/pelamar/dashboard');
-            }
-
-            // Default fallback
-            return redirect('/admin/login');
         }
-    }
 
-    return $next($request);
-}
+        return $next($request);
+    }
 }

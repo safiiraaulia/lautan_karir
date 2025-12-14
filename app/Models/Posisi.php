@@ -60,6 +60,6 @@ class Posisi extends Model
             'posisi_id',       // Foreign key di pivot untuk Posisi
             'kriteria_id'      // Foreign key di pivot untuk Kriteria
         )
-        ->withPivot('bobot_saw'); // (Opsional) jika ingin ambil bobotnya
+        ->withPivot('bobot_saw', 'syarat'); // (Opsional) jika ingin ambil bobotnya
     }
 }
