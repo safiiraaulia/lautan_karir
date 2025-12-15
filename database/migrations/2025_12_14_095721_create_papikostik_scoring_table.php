@@ -14,8 +14,16 @@ class CreatePapikostikScoringTable extends Migration
     public function up()
     {
         Schema::create('papikostik_scoring', function (Blueprint $table) {
-            $table->id();
+            $table->id('id_scoring');
+            $table->unsignedBigInteger('soal_id');
+            $table->unsignedBigInteger('aspek_id');
+            $table->enum('pilihan', ['A', 'B']); // Sesuai dengan seeder
+            $table->integer('bobot')->default(1);
             $table->timestamps();
+
+            $table->foreign('soal_id')->references('id_soal')->on('soal')->onDelete('cascade');
+            $table->foreign('aspek_id')->references('id_aspek')->on('papikostik_aspek')->onDelete('cascade');
+            $table->index(['soal_id', 'pilihan']);
         });
     }
 
