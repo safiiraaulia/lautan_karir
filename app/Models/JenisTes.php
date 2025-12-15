@@ -12,6 +12,12 @@ class JenisTes extends Model
     protected $primaryKey = 'id_jenis_tes';
     public $timestamps = false;
 
+    protected $fillable = [
+        'nama_tes',
+        'instruksi',
+        'durasi_menit',
+    ];
+
     /**
      * Relasi: Satu JenisTes bisa ada di Banyak PaketTes (via tabel pivot)
      */

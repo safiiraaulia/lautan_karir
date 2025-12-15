@@ -11,9 +11,14 @@ class JawabanTes extends Model
     protected $table = 'jawaban_tes';
     public $timestamps = false;
 
-    /**
-     * Relasi: Satu Jawaban dimiliki oleh Satu Lamaran
-     */
+    protected $fillable = [
+        'lamaran_id',
+        'soal_id',
+        'jawaban_teks',
+        'path_file_upload',
+        'dijawab_pada'
+    ];
+    
     public function lamaran()
     {
         return $this->belongsTo(Lamaran::class, 'lamaran_id', 'id_lamaran');

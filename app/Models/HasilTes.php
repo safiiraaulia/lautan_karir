@@ -46,4 +46,9 @@ class HasilTes extends Model
     {
         return $this->belongsTo(JenisTes::class, 'jenis_tes_id', 'id_jenis_tes');
     }
+
+    public function progressTes()
+    {
+        return $this->belongsTo(ProgressTes::class, 'progress_tes_id', 'id_progress_tes');
+    }
 }

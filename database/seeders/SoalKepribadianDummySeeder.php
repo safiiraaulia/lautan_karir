@@ -23,7 +23,7 @@ class SoalKepribadianDummySeeder extends Seeder
      */
     public function run()
     {
-        $jenisTes = JenisTes::where('nama_tes', 'Tes Kepribadian')->first();
+        $jenisTes = JenisTes::where('nama_tes', 'Kepribadian')->first();
         
         if (!$jenisTes) {
             $this->command->error('Jenis Tes Kepribadian belum ada! Jalankan JenisTesSeeder dulu.');

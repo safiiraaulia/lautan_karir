@@ -148,7 +148,14 @@ class PapikostikAspekSeeder extends Seeder
         ];
 
         foreach ($aspekData as $data) {
-            PapikostikAspek::create($data);
+            PapikostikAspek::updateOrCreate(
+                ['kode_aspek' => $data['kode_aspek']], // key unik
+                [
+                    'nama_aspek' => $data['nama_aspek'],
+                    'deskripsi' => $data['deskripsi'],
+                    'kategori'  => $data['kategori'],
+                ]
+            );
         }
     }
 }

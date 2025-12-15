@@ -19,6 +19,10 @@ class CreateProgressTesTable extends Migration
             $table->unsignedBigInteger('jenis_tes_id');
             $table->enum('status', ['selesai', 'sedang_dikerjakan']); // Sesuai brief
 
+            $table->timestamp('waktu_mulai')->nullable();
+            $table->timestamp('waktu_selesai')->nullable();
+            $table->integer('durasi_tersisa')->nullable(); // dalam detik
+            
             $table->foreign('lamaran_id')->references('id_lamaran')->on('lamaran')->onDelete('cascade');
             $table->foreign('jenis_tes_id')->references('id_jenis_tes')->on('jenis_tes');
             $table->timestamps();

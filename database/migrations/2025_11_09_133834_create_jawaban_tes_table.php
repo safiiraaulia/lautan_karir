@@ -20,6 +20,8 @@ class CreateJawabanTesTable extends Migration
             $table->text('jawaban_teks')->nullable(); // Untuk esai atau pilihan ganda
             $table->string('path_file_upload')->nullable(); // Untuk soal upload
 
+            $table->timestamp('dijawab_pada')->useCurrent(); // Tracking waktu jawab
+
             $table->foreign('lamaran_id')->references('id_lamaran')->on('lamaran')->onDelete('cascade');
             $table->foreign('soal_id')->references('id_soal')->on('soal');
             $table->timestamps();

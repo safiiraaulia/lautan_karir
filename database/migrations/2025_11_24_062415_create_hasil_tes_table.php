@@ -20,24 +20,19 @@ class CreateHasilTesTable extends Migration
             $table->unsignedBigInteger('lamaran_id');
             $table->unsignedBigInteger('jenis_tes_id');
             
-            // KOLOM SAKTI (JSON):
-            // Bisa menyimpan nilai tunggal seperti {"score": 80}
-            // Atau nilai kompleks Papikostik seperti {"G": 4, "L": 5, "I": 2, "T": 6}
-            // Tanpa perlu ubah database lagi.
+            
             $table->json('detail_nilai')->nullable(); 
             
-            // Kesimpulan teks singkat (misal: "Disarankan", "Tidak Disarankan")
             $table->string('kesimpulan')->nullable(); 
             
             $table->timestamps();
 
-            // Aturan Relasi (Agar data konsisten)
             $table->foreign('lamaran_id')
-                  ->references('id_lamaran')->on('lamaran') // Sesuai tabel lamaran Anda
+                  ->references('id_lamaran')->on('lamaran') 
                   ->onDelete('cascade');
                   
             $table->foreign('jenis_tes_id')
-                  ->references('id_jenis_tes')->on('jenis_tes') // Sesuai tabel jenis_tes Anda
+                  ->references('id_jenis_tes')->on('jenis_tes') 
                   ->onDelete('cascade');
         });
     }

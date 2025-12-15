@@ -24,8 +24,7 @@ class SoalPapikostikDummySeeder extends Seeder
      */
     public function run()
     {
-        $jenisTes = JenisTes::where('nama_tes', 'Tes Papikostik')->first();
-        
+        $jenisTes = JenisTes::where('nama_tes', 'Papikostik')->first();        
         if (!$jenisTes) {
             $this->command->error('Jenis Tes Papikostik belum ada! Jalankan JenisTesSeeder dulu.');
             return;
