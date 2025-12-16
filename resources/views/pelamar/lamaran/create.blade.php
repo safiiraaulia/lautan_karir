@@ -56,12 +56,13 @@
 
                                                 <div class="position-relative">
                                                     {{-- ID dan FOR harus Unik --}}
-                                                    <input class="form-check-input d-none input-option" 
-                                                           type="radio" 
-                                                           name="jawaban[{{ $kriteria->id_kriteria }}]" 
-                                                           id="opt_{{ $idSkala }}" 
-                                                           value="{{ $idSkala }}" 
-                                                           required>
+                                                <input class="form-check-input input-option" 
+                                                    style="position: absolute; opacity: 0; pointer-events: none;"
+                                                    type="radio" 
+                                                    name="jawaban[{{ $kriteria->id_kriteria }}]" 
+                                                    id="opt_{{ $idSkala }}" 
+                                                    value="{{ $idSkala }}" 
+                                                    required>
                                                     
                                                     <label class="btn btn-outline-light text-dark w-100 text-start p-3 rounded-3 border shadow-sm option-label transition-btn" 
                                                            for="opt_{{ $idSkala }}">
