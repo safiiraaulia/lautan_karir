@@ -13,24 +13,21 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
+        // 1. Data Dasar & Akses Login
         $this->call([
             AdminSeeder::class,
             DealerSeeder::class,
         ]);
 
-        $this->command->info('🧠 Seeding Master Data Tes...');
-        
+        $this->command->info('🧠 Seeding Data Tes Lautan Karir...');
+
+        // 2. Data Tes
         $this->call([
-            // 1. Jenis Tes (Papikostik & Kepribadian)
-            JenisTesSeeder::class,
+            SoalKepribadianSeeder::class, 
             
-            // 2. Aspek & Dimensi
-            PapikostikAspekSeeder::class,
-            KepribadianDimensiSeeder::class,
-            
-            // 3. Soal Dummy (10 soal masing-masing)
-            SoalPapikostikDummySeeder::class,
-            SoalKepribadianDummySeeder::class,
+            PapikostikSeeder::class, 
         ]);
+        
+        $this->command->info('✅ Semua data berhasil masuk!');
     }
-}
+    }

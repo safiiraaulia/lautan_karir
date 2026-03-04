@@ -31,14 +31,14 @@ class AdminLoginController extends Controller
             'is_active' => true, 
         ];
 
-        // ✅ Login pakai guard ADMIN, bukan WEB
+        // Login pakai guard ADMIN
         if (Auth::guard('admin')->attempt($credentials, $request->filled('remember'))) {
 
             $request->session()->regenerate();
 
             $user = Auth::guard('admin')->user();
 
-            // ✅ Hanya SUPER_ADMIN & HRD
+            // Hanya SUPER_ADMIN & HRD
             if (in_array($user->role, ['SUPER_ADMIN', 'HRD'])) {
                 return redirect()->intended('/admin/dashboard');
             }
@@ -48,8 +48,7 @@ class AdminLoginController extends Controller
         }
 
         return back()->withErrors([
-            'username' => 'Username atau password salah.',
-        ])->onlyInput('username');
+            'username' => 'Username atau password salah.', ])->onlyInput('username');
     }
 
     public function logout(Request $request)

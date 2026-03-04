@@ -12,11 +12,11 @@ class PelamarPendidikan extends Model
 
     protected $fillable = [
         'pelamar_id',
-        'jenjang', // SMA, S1, dll
+        'jenjang',
         'jurusan',
         'nama_sekolah',
         'kota',
         'tahun_lulus',
-        'nilai_akhir' // IPK / Nem
+        'nilai_akhir'
     ];
 }

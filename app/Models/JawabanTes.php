@@ -8,27 +8,28 @@ use Illuminate\Database\Eloquent\Model;
 class JawabanTes extends Model
 {
     use HasFactory;
+
     protected $table = 'jawaban_tes';
-    public $timestamps = false;
+    
+    protected $primaryKey = 'id_jawaban';
+
+    public $timestamps = true;
 
     protected $fillable = [
-        'lamaran_id',
+        'pelamar_id',
         'soal_id',
-        'jawaban_teks',
-        'path_file_upload',
-        'dijawab_pada'
+        'most',    // DISC Most
+        'least', // DISC Least
+        'jawaban_papikostik',   // PAPI A/B
     ];
-    
-    public function lamaran()
+
+    public function pelamar()
     {
-        return $this->belongsTo(Lamaran::class, 'lamaran_id', 'id_lamaran');
+        return $this->belongsTo(Pelamar::class, 'pelamar_id', 'id');
     }
 
-    /**
-     * Relasi: Satu Jawaban mengacu pada Satu Soal
-     */
     public function soal()
     {
-        return $this->belongsTo(Soal::class, 'soal_id', 'id_soal');
+        return $this->belongsTo(SoalKelompok::class, 'soal_id', 'id_soal_kelompok');
     }
 }

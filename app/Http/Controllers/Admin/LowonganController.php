@@ -6,40 +6,35 @@ use App\Http\Controllers\Controller;
 use App\Models\Lowongan;
 use App\Models\Posisi;
 use App\Models\Dealer;
-use App\Models\PaketTes;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class LowonganController extends Controller
 {
-    /**
-     * Menampilkan daftar semua lowongan.
-     */
-    public function index()
-    {
-        // Ambil lowongan beserta relasi Posisi dan Dealer
-        $lowongans = Lowongan::with(['posisi', 'dealer'])->latest()->get();
-        return view('admin.lowongan.index', compact('lowongans'));
+    public function index(Request $request)
+{
+    $isTrash = $request->has('trash');
+    $query = Lowongan::with(['posisi', 'dealer']);
+
+    if ($isTrash) {
+        $lowongans = $query->onlyTrashed()->latest('deleted_at')->get();
+    } else {
+        $lowongans = $query->latest()->get();
     }
 
-    /**
-     * Menampilkan form untuk membuat lowongan baru.
-     */
+    return view('admin.lowongan.index', compact('lowongans', 'isTrash'));
+    }
+
     public function create()
     {
-        // Ambil data master untuk dropdown
         $posisis = Posisi::where('is_active', true)->orderBy('nama_posisi')->get();
         $dealers = Dealer::orderBy('nama_dealer')->get();
-        $paketTes = PaketTes::orderBy('nama_paket')->get(); // Ganti nama model jika beda
-
-        return view('admin.lowongan.create', compact('posisis', 'dealers', 'paketTes'));
+        return view('admin.lowongan.create', compact('posisis', 'dealers'));
     }
 
-    /**
-     * Menyimpan lowongan baru.
-     */
     public function store(Request $request)
     {
-        $request->validate([
+        $validated = $request->validate([
             'posisi_id' => 'required|exists:posisi,kode_posisi',
             'dealer_id' => 'required|exists:dealer,kode_dealer',
             'tgl_buka' => 'required|date',
@@ -48,41 +43,20 @@ class LowonganController extends Controller
             'deskripsi' => 'nullable|string',
         ]);
 
-        Lowongan::create($request->all());
-
-        return redirect()->route('admin.lowongan.index')
-                         ->with('success', 'Lowongan baru berhasil ditambahkan.');
+        Lowongan::create($validated);
+        return redirect()->route('admin.lowongan.index')->with('success', 'Lowongan baru berhasil ditambahkan.');
     }
 
-    /**
-     * Menampilkan detail lowongan (opsional, bisa diskip).
-     */
-    public function show(Lowongan $lowongan)
-    {
-         // Load relasi agar bisa ditampilkan di view
-        $lowongan->load(['posisi', 'dealer', 'paketTes']);
-        return view('admin.lowongan.show', compact('lowongan'));
-    }
-
-    /**
-     * Menampilkan form untuk mengedit lowongan.
-     */
     public function edit(Lowongan $lowongan)
     {
-        // Ambil data master untuk dropdown
         $posisis = Posisi::where('is_active', true)->orderBy('nama_posisi')->get();
         $dealers = Dealer::orderBy('nama_dealer')->get();
-        $paketTes = PaketTes::orderBy('nama_paket')->get();
-
-        return view('admin.lowongan.edit', compact('lowongan', 'posisis', 'dealers', 'paketTes'));
+        return view('admin.lowongan.edit', compact('lowongan', 'posisis', 'dealers'));
     }
 
-    /**
-     * Update lowongan yang ada.
-     */
     public function update(Request $request, Lowongan $lowongan)
     {
-        $request->validate([
+        $validated = $request->validate([
             'posisi_id' => 'required|exists:posisi,kode_posisi',
             'dealer_id' => 'required|exists:dealer,kode_dealer',
             'tgl_buka' => 'required|date',
@@ -91,20 +65,27 @@ class LowonganController extends Controller
             'deskripsi' => 'nullable|string',
         ]);
 
-        $lowongan->update($request->all());
-
-        return redirect()->route('admin.lowongan.index')
-                         ->with('success', 'Lowongan berhasil diperbarui.');
+        $lowongan->update($validated);
+        return redirect()->route('admin.lowongan.index')->with('success', 'Lowongan berhasil diperbarui.');
     }
 
-    /**
-     * Hapus lowongan (soft delete).
-     */
     public function destroy(Lowongan $lowongan)
     {
-        $lowongan->delete(); // Ini akan melakukan soft delete
+        $lowongan->delete();
+        return back()->with('success', 'Lowongan dipindahkan ke tempat sampah.');
+    }
 
-        return redirect()->route('admin.lowongan.index')
-                         ->with('success', 'Lowongan berhasil dihapus.');
+    public function restore($id)
+    {
+        $lowongan = Lowongan::onlyTrashed()->findOrFail($id);
+        $lowongan->restore();
+        return redirect()->route('admin.lowongan.index')->with('success', 'Lowongan berhasil dipulihkan.');
+    }
+
+    public function forceDelete($id)
+    {
+        $lowongan = Lowongan::onlyTrashed()->findOrFail($id);
+        DB::transaction(fn() => $lowongan->forceDelete());
+        return back()->with('success', 'Lowongan dihapus permanen.');
     }
 }

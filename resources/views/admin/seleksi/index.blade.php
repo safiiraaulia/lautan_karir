@@ -6,10 +6,6 @@
 <div class="container mt-4">
     <h3>Seleksi & Perangkingan SAW</h3>
     <p class="text-muted">Pilih lowongan untuk melihat hasil perhitungan SAW (Perangkingan) dari pelamar yang telah mengisi form administrasi.</p>
-
-    @if (session('success'))
-        <div class="alert alert-success">{{ session('success') }}</div>
-    @endif
     
     @if ($errors->any())
         <div class="alert alert-danger">
@@ -44,7 +40,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="5" class="text-center">Tidak ada lowongan yang sedang dibuka atau memiliki pelamar.</td>
+                        <td colspan="5" class="text-center text-muted py-4">Tidak ada lowongan yang sedang dibuka atau memiliki pelamar.</td>
                     </tr>
                     @endforelse
                 </tbody>

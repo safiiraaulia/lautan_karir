@@ -3,81 +3,83 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Kriteria; // <-- Pastikan Model Kriteria di-use
+use App\Models\Kriteria;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class KriteriaController extends Controller
 {
-    /**
-     * Menampilkan daftar kriteria.
-     */
-    public function index()
+    public function index(Request $request)
     {
-        $kriterias = Kriteria::all();
-        // Buat folder 'kriteria' di dalam 'resources/views/admin/'
-        return view('admin.kriteria.index', compact('kriterias'));
+        $isTrash = $request->has('trash');
+        $query = Kriteria::query();
+
+        if ($isTrash) {
+            $kriterias = $query->onlyTrashed()->latest('deleted_at')->get();
+        } else {
+            $kriterias = $query->orderBy('nama_kriteria', 'ASC')->get();
+        }
+
+        return view('admin.kriteria.index', compact('kriterias', 'isTrash'));
     }
 
-    /**
-     * Menampilkan form untuk membuat kriteria baru.
-     */
     public function create()
     {
         return view('admin.kriteria.create');
     }
 
-    /**
-     * Menyimpan kriteria baru ke database.
-     */
     public function store(Request $request)
     {
-       $validatedData = $request->validate([
+        $validated = $request->validate([
             'nama_kriteria' => 'required|string|max:255',
-            'jenis' => 'required|in:Benefit,Cost',
-            'bobot_saw' => 'required|numeric|min:0', // Pastikan validasi Anda ada
+            'pertanyaan'    => 'required|string|max:500',
+            'jenis'         => 'required|in:Benefit,Cost',
         ]);
 
-        Kriteria::create($validatedData);
-
-        return redirect()->route('admin.kriteria.index')
-                         ->with('success', 'Kriteria berhasil ditambahkan.');
+        Kriteria::create($validated);
+        return redirect()->route('admin.kriteria.index')->with('success', 'Kriteria berhasil ditambahkan.');
     }
 
-    /**
-     * Menampilkan form untuk mengedit kriteria.
-     */
     public function edit(Kriteria $kriteria)
     {
-        // $kriteria adalah model Kriteria yang diambil otomatis oleh Laravel
         return view('admin.kriteria.edit', compact('kriteria'));
     }
 
-    /**
-     * Update kriteria di database.
-     */
     public function update(Request $request, Kriteria $kriteria)
     {
-        // Validasi input
-        $validatedData = $request->validate([
+        $validated = $request->validate([
             'nama_kriteria' => 'required|string|max:255',
-            'jenis' => 'required|in:Benefit,Cost',
-            'pertanyaan' => 'required|string|max:500',
+            'jenis'         => 'required|in:Benefit,Cost',
+            'pertanyaan'    => 'required|string|max:500',
         ]);
 
-        $kriteria->update($validatedData);
-
-        return redirect()->route('admin.kriteria.index')
-                         ->with('success', 'Kriteria berhasil diperbarui.');
+        $kriteria->update($validated);
+        return redirect()->route('admin.kriteria.index')->with('success', 'Kriteria berhasil diperbarui.');
     }
 
-    /**
-     * Hapus kriteria dari database.
-     */
     public function destroy(Kriteria $kriteria)
     {
         $kriteria->delete();
+        return back()->with('success', 'Kriteria dipindahkan ke tempat sampah.');
+    }
 
-        return redirect()->route('admin.kriteria.index')
-                         ->with('success', 'Kriteria berhasil dihapus.');
+    public function restore($id)
+    {
+        $kriteria = Kriteria::onlyTrashed()->findOrFail($id);
+        $kriteria->restore();
+        return redirect()->route('admin.kriteria.index')->with('success', 'Kriteria berhasil dipulihkan.');
+    }
+
+    public function forceDelete($id)
+    {
+        $kriteria = Kriteria::onlyTrashed()->findOrFail($id);
+        
+        DB::transaction(function () use ($kriteria) {
+            $kriteria->posisi()->detach();
+            $kriteria->skalaNilai()->delete();
+            $kriteria->forceDelete();
+        });
+
+        return back()->with('success', 'Kriteria dihapus permanen.');
     }
 }

@@ -1,21 +1,25 @@
-<aside class="main-sidebar sidebar-dark-primary elevation-4">
-
-    <a href="{{ route('admin.dashboard') }}" class="brand-link">
-        <span class="brand-text font-weight-light">Admin Panel</span>
+<aside class="main-sidebar sidebar-light-navy elevation-4">
+    <a href="{{ route('admin.dashboard') }}" class="brand-link d-flex align-items-center border-bottom">
+        <img src="{{ asset('img/logo.PNG') }}" 
+             alt="Lautan Karir Logo" 
+             class="brand-image img-circle elevation-2" 
+             style="opacity: .9; max-height: 33px;">
+             
+        <span class="brand-text font-weight-bold text-dark ml-2">LAUTAN KARIR</span>
     </a>
 
     <div class="sidebar">
-
         <div class="user-panel mt-3 pb-3 mb-3 d-flex">
             <div class="info">
-                <a href="#" class="d-block">
+                <a href="#" class="d-block font-weight-bold text-uppercase">
                     {{ Auth::guard('admin')->user()->username }}
-                    ({{ Auth::guard('admin')->user()->role }})
+                    <small class="d-block text-muted">({{ Auth::guard('admin')->user()->role }})</small>
                 </a>
             </div>
         </div>
+
         <nav class="mt-2">
-            <ul class="nav nav-pills nav-sidebar flex-column" role="menu">
+            <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu">
 
                 <li class="nav-item">
                     <a href="{{ route('admin.dashboard') }}" 
@@ -27,7 +31,8 @@
 
                 @if(in_array(Auth::guard('admin')->user()->role, ['SUPER_ADMIN', 'HRD']))
 
-                    <li class="nav-header">DATA MASTER</li>
+                    <li class="nav-header font-weight-bold">DATA MASTER</li>
+                    
                     <li class="nav-item">
                         <a href="{{ route('admin.dealer.index') }}" 
                            class="nav-link {{ request()->routeIs('admin.dealer.*') ? 'active' : '' }}">
@@ -35,6 +40,7 @@
                             <p>Master Dealer</p>
                         </a>
                     </li>
+                    
                     <li class="nav-item">
                         <a href="{{ route('admin.posisi.index') }}" 
                            class="nav-link {{ request()->routeIs('admin.posisi.*') ? 'active' : '' }}">
@@ -42,6 +48,7 @@
                             <p>Master Posisi</p>
                         </a>
                     </li>
+                    
                     <li class="nav-item">
                         <a href="{{ route('admin.kriteria.index') }}" 
                            class="nav-link {{ request()->routeIs('admin.kriteria.*') ? 'active' : '' }}">
@@ -49,15 +56,17 @@
                             <p>Master Kriteria</p>
                         </a>
                     </li>
-                    <!-- <li class="nav-item">
-                        <a href="{{ route('admin.skala-nilai.index') }}" 
-                           class="nav-link {{ request()->routeIs('admin.skala-nilai.*') ? 'active' : '' }}">
-                            <i class="nav-icon fas fa-star-half-alt"></i>
-                            <p>Master Skala Nilai</p>
+                    
+                    <li class="nav-item">
+                        <a href="{{ route('admin.bank-soal.index') }}" 
+                           class="nav-link {{ request()->routeIs('admin.bank-soal.*') ? 'active' : '' }}">
+                            <i class="nav-icon fas fa-tasks"></i> 
+                            <p>Master Soal</p>
                         </a>
-                    </li> -->
-                
-                    <li class="nav-header">REKRUTMEN</li>
+                    </li>
+
+                    <li class="nav-header font-weight-bold">REKRUTMEN</li>
+                    
                     <li class="nav-item">
                         <a href="{{ route('admin.lowongan.index') }}" 
                            class="nav-link {{ request()->routeIs('admin.lowongan.*') ? 'active' : '' }}">
@@ -68,32 +77,34 @@
 
                     <li class="nav-item">
                         <a href="{{ route('admin.seleksi.index') }}" 
-                        class="nav-link {{ request()->routeIs('admin.seleksi.*') ? 'active' : '' }}">
+                           class="nav-link {{ request()->routeIs('admin.seleksi.*') ? 'active' : '' }}">
                             <i class="nav-icon fas fa-chart-bar"></i>
                             <p>Seleksi & Perangkingan</p>
                         </a>
                     </li>
 
                     <li class="nav-item">
+                        <a href="{{ route('admin.hasil_tes.index') }}" 
+                           class="nav-link {{ request()->routeIs('admin.hasil_tes.*') ? 'active' : '' }}">
+                            <i class="nav-icon fas fa-user-check"></i>
+                            <p>Rekapitulasi Psikotes</p>
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
                         <a href="{{ route('admin.laporan.index') }}" 
-                        class="nav-link {{ request()->routeIs('admin.laporan.*') ? 'active' : '' }}">
+                           class="nav-link {{ request()->routeIs('admin.laporan.*') ? 'active' : '' }}">
                             <i class="nav-icon fas fa-file-alt"></i>
                             <p>Laporan Rekrutmen</p>
                         </a>
                     </li>
 
-                    <!-- <li class="nav-item">
-                        <a href="{{ route('admin.pelamar.index') }}" 
-                           class="nav-link {{ request()->routeIs('admin.pelamar.*') ? 'active' : '' }}">
-                            <i class="nav-icon fas fa-users"></i>
-                            <p>Kelola Pelamar</p>
-                        </a>
-                    </li> -->
-                
                 @endif
+
                 @if(Auth::guard('admin')->user()->role === 'SUPER_ADMIN')
                 
-                    <li class="nav-header">Pengguna</li>
+                    <li class="nav-header font-weight-bold">PENGGUNA</li>
+                    
                     <li class="nav-item">
                         <a href="{{ route('admin.pelamar.index') }}" 
                            class="nav-link {{ request()->routeIs('admin.pelamar.*') ? 'active' : '' }}">
@@ -107,11 +118,10 @@
                            class="nav-link {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
                             <i class="nav-icon fas fa-users-cog"></i> 
                             <p>Kelola Admin</p> 
-                            
                         </a>
                     </li>
                 @endif
-                </ul>
+            </ul>
         </nav>
-        </div>
-    </aside>
+    </div>
+</aside>

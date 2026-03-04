@@ -11,16 +11,21 @@
         .bg-light, .badge { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
     }
     .profile-header { display: none; }
-    /* Foto Profil Memanjang Sesuai Permintaan */
     .img-profile-container { width: 100%; max-width: 200px; height: auto; margin: 0 auto; }
     .img-profile { width: 100%; height: auto; object-fit: cover; border: 1px solid #ddd; padding: 4px; border-radius: 4px; }
+    
+    /* CSS Tambahan agar Header Tabel Konsisten */
+    .table thead th {
+        background-color: #f8f9fa;
+        color: #333;
+        font-weight: 600;
+        border-bottom: 2px solid #dee2e6;
+    }
 </style>
 
 <div class="container mt-4 mb-5">
-    {{-- Header Print --}}
     <div class="profile-header"><h2>CV PELAMAR - LAUTAN KARIR</h2><p>Dicetak pada: {{ date('d F Y') }}</p></div>
 
-    {{-- Header Halaman --}}
     <div class="d-flex justify-content-between align-items-center mb-4 no-print">
         <div><h3 class="text-dark fw-bold mb-0">Detail Profil Pelamar</h3><p class="text-muted small mb-0">Data lengkap dan berkas administrasi pelamar.</p></div>
         <div>
@@ -30,7 +35,6 @@
     </div>
 
     <div class="row">
-        {{-- Sidebar Kiri --}}
         <div class="col-md-3">
             <div class="card card-dark card-outline shadow-sm">
                 <div class="card-body box-profile text-center">
@@ -62,7 +66,6 @@
                 </div>
             </div>
 
-            {{-- Card Berkas --}}
             <div class="card shadow-sm mt-3 no-print">
                 <div class="card-header bg-dark text-white py-2"><h6 class="card-title mb-0"><i class="fas fa-file-alt mr-1"></i> Berkas & Dokumen</h6></div>
                 <ul class="list-group list-group-flush">
@@ -80,9 +83,7 @@
             </div>
         </div>
 
-        {{-- Konten Kanan --}}
         <div class="col-md-9">
-            {{-- Data Pribadi --}}
             <div class="card shadow-sm mb-4">
                 <div class="card-header bg-light border-bottom"><h5 class="mb-0 text-dark"><i class="fas fa-id-card mr-2"></i> Data Pribadi & Fisik</h5></div>
                 <div class="card-body">
@@ -90,8 +91,6 @@
                         <div class="col-md-6">
                             <dl class="row mb-0">
                                 <dt class="col-sm-4 text-muted">NIK (KTP)</dt><dd class="col-sm-8 fw-bold">{{ $pelamar->no_ktp ?? '-' }}</dd>
-                                
-                                {{-- REVISI: Tempat & Tanggal Lahir Dipisah --}}
                                 <dt class="col-sm-4 text-muted">Tempat Lahir</dt><dd class="col-sm-8">{{ $pelamar->tempat_lahir ?? '-' }}</dd>
                                 <dt class="col-sm-4 text-muted">Tanggal Lahir</dt>
                                 <dd class="col-sm-8">
@@ -100,7 +99,6 @@
                                         <span class="text-muted ms-1">({{ \Carbon\Carbon::parse($pelamar->tanggal_lahir)->age }} Thn)</span>
                                     @else - @endif
                                 </dd>
-
                                 <dt class="col-sm-4 text-muted">Jenis Kelamin</dt><dd class="col-sm-8">{{ $pelamar->jenis_kelamin == 'L' ? 'Laki-laki' : 'Perempuan' }}</dd>
                                 <dt class="col-sm-4 text-muted">Status Nikah</dt><dd class="col-sm-8">{{ $pelamar->status_pernikahan }}</dd>
                                 <dt class="col-sm-4 text-muted">Warga Negara</dt><dd class="col-sm-8">{{ $pelamar->kewarganegaraan ?? 'WNI' }}</dd>
@@ -118,7 +116,6 @@
                 </div>
             </div>
 
-            {{-- Keluarga --}}
             <div class="card shadow-sm mb-4">
                 <div class="card-header bg-light border-bottom"><h5 class="mb-0 text-dark"><i class="fas fa-users mr-2"></i> Data Keluarga</h5></div>
                 <div class="card-body">
@@ -129,10 +126,10 @@
                             @if($pelamar->tanggal_lahir_pasangan) <small class="text-muted">({{ \Carbon\Carbon::parse($pelamar->tanggal_lahir_pasangan)->format('d-m-Y') }})</small> @endif
                         </div>
                     </div>
-                    <h6>Data Anak</h6>
+                    <h6 class="fw-bold">Data Anak</h6>
                     <div class="table-responsive">
-                        <table class="table table-sm table-bordered mb-0">
-                            <thead class="bg-light"><tr><th>Nama Anak</th><th>Tanggal Lahir</th><th>Keterangan</th></tr></thead>
+                        <table class="table table-sm table-striped mb-0">
+                            <thead><tr><th>Nama Anak</th><th>Tanggal Lahir</th><th>Keterangan</th></tr></thead>
                             <tbody>
                                 @forelse($pelamar->keluarga as $anak)
                                     <tr>
@@ -141,7 +138,7 @@
                                         <td>{{ $anak->keterangan }}</td>
                                     </tr>
                                 @empty
-                                    <tr><td colspan="3" class="text-center text-muted small">Tidak ada data anak.</td></tr>
+                                    <tr><td colspan="3" class="text-center text-muted py-2">Tidak ada data anak.</td></tr>
                                 @endforelse
                             </tbody>
                         </table>
@@ -149,7 +146,6 @@
                 </div>
             </div>
 
-            {{-- Pendidikan --}}
             <div class="card shadow-sm mb-4">
                 <div class="card-header bg-light border-bottom"><h5 class="mb-0 text-dark"><i class="fas fa-graduation-cap mr-2"></i> Riwayat Pendidikan</h5></div>
                 <div class="card-body p-0">
@@ -175,7 +171,6 @@
                 </div>
             </div>
 
-            {{-- Pekerjaan --}}
             <div class="card shadow-sm mb-4">
                 <div class="card-header bg-light border-bottom"><h5 class="mb-0 text-dark"><i class="fas fa-briefcase mr-2"></i> Pengalaman Kerja</h5></div>
                 <div class="card-body p-0">
@@ -199,7 +194,6 @@
                 </div>
             </div>
 
-            {{-- Legalitas --}}
             <div class="card shadow-sm mb-4">
                 <div class="card-header bg-light border-bottom"><h5 class="mb-0 text-dark"><i class="fas fa-file-contract mr-2"></i> Legalitas & Kendaraan</h5></div>
                 <div class="card-body">
@@ -208,7 +202,7 @@
                             <div class="col-md-4"><small class="text-muted d-block">{{ $lbl }}</small><strong>{{ $pelamar->$fld ?? '-' }}</strong></div>
                         @endforeach
                         <div class="col-md-4"><small class="text-muted d-block">Kendaraan</small><strong>{{ $pelamar->jenis_kendaraan }} ({{ $pelamar->kepemilikan_kendaraan }})</strong></div>
-                        <div class="col-md-4"><small class="text-muted d-block">Merk/Tahun</small><strong>{{ $pelamar->merk_kendaraan }} / {{ $pelamar->tahun_kendaraan }}</strong></div>
+                        <div class="col-md-4"><small class="text-muted d-block">Merk/Tahun</small><strong>{{ $pelamar->merk_kendaraan }}</strong></div>
                     </div>
                 </div>
             </div>

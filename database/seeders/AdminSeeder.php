@@ -16,15 +16,15 @@ class AdminSeeder extends Seeder
         Admin::create([
             'username' => 'superadmin',
             'password' => Hash::make('password'),
-            'role' => 'SUPER_ADMIN', // Tetap
+            'role' => 'SUPER_ADMIN',
             'is_active' => true,
         ]);
 
-        // 2. Akun HRD (FIXED)
+        // 2. Akun HRD
         Admin::create([
-            'username' => 'hrd', // Diubah dari hrdpusat
+            'username' => 'hrd',
             'password' => Hash::make('password'),
-            'role' => 'HRD', // Diubah dari HR_PUSAT
+            'role' => 'HRD', 
             'is_active' => true,
         ]);
     }

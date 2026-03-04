@@ -14,6 +14,6 @@ class PelamarKeluarga extends Model
         'pelamar_id',
         'nama',
         'tanggal_lahir',
-        'keterangan' // Anak ke-1, ke-2, dll
+        'keterangan'
     ];
 }

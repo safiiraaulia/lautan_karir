@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreatePaketTesPivotTable extends Migration
+class CreateSoalKelompokTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,15 +13,17 @@ class CreatePaketTesPivotTable extends Migration
      */
     public function up()
     {
-        Schema::create('paket_tes_pivot', function (Blueprint $table) {
-            $table->unsignedBigInteger('paket_tes_id');
+        Schema::create('soal_kelompok', function (Blueprint $table) {
+            $table->id('id_soal_kelompok');
             $table->unsignedBigInteger('jenis_tes_id');
-            $table->integer('urutan');
+            
+            // PASTIKAN NAMA KOLOMNYA ADALAH 'nomor_kelompok'
+            $table->integer('nomor_kelompok'); 
+            
+            $table->string('tipe_soal')->default('disc');
+            $table->timestamps();
 
-            $table->foreign('paket_tes_id')->references('id_paket_tes')->on('paket_tes')->onDelete('cascade');
             $table->foreign('jenis_tes_id')->references('id_jenis_tes')->on('jenis_tes')->onDelete('cascade');
-
-            $table->primary(['paket_tes_id', 'jenis_tes_id']);
         });
     }
 
@@ -32,6 +34,6 @@ class CreatePaketTesPivotTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('paket_tes_pivot');
+        Schema::dropIfExists('soal_kelompok');
     }
 }

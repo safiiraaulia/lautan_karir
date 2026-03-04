@@ -5,12 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Auth\Passwords\CanResetPassword as CanResetPasswordTrait;
+use Illuminate\Contracts\Auth\CanResetPassword;
 
-class Pelamar extends Authenticatable
+class Pelamar extends Authenticatable implements CanResetPassword
 {
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, CanResetPasswordTrait;
     
-
     protected $table = 'pelamar';
     protected $primaryKey = 'id_pelamar';
 
@@ -33,44 +34,33 @@ class Pelamar extends Authenticatable
     ];
 
     protected $hidden = [
-        'password',
-        // 'remember_token', // Aktifkan jika Anda menambah 'remember_token' di migrasi
+        'password','remember_token',
     ];
 
     protected $casts = [
-        'is_active' => 'boolean', // Konversi 'is_active' (0/1) menjadi true/false
-        // 'email_verified_at' => 'datetime', // (Opsional) Jika Anda menerapkan verifikasi email
+        'is_active' => 'boolean',
     ];
 
-    // -------------------------------------------------------------------------
-    // RELASI ELOQUENT
-    // -------------------------------------------------------------------------
-
-    /**
-     * Mendapatkan semua lamaran yang dimiliki oleh pelamar ini.
-     * Relasi: One-to-Many (Satu Pelamar memiliki Banyak Lamaran)
-     */
     public function lamaran()
     {
-        // 'Lamaran::class' -> Model tujuan
-        // 'pelamar_id' -> Foreign key di tabel 'lamaran'
-        // 'id_pelamar' -> Local key (primary key) di tabel 'pelamar'
         return $this->hasMany(Lamaran::class, 'pelamar_id', 'id_pelamar');
     }
 
-    // Relasi ke Tabel Keluarga (Anak)
+    public function jawabanTes()
+    {
+        return $this->hasMany(JawabanTes::class, 'pelamar_id', 'id_pelamar');
+    }
+
     public function keluarga()
     {
         return $this->hasMany(PelamarKeluarga::class, 'pelamar_id', 'id_pelamar');
     }
 
-    // Relasi ke Tabel Pendidikan
     public function pendidikan()
     {
         return $this->hasMany(PelamarPendidikan::class, 'pelamar_id', 'id_pelamar');
     }
 
-    // Relasi ke Tabel Pekerjaan
     public function pekerjaan()
     {
         return $this->hasMany(PelamarPekerjaan::class, 'pelamar_id', 'id_pelamar');

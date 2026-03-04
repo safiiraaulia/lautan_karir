@@ -48,7 +48,6 @@
                                     @else
                                         <div class="d-grid gap-2">
                                             @foreach($kriteria->opsi as $skala)
-                                                {{-- PERBAIKAN UTAMA DI SINI --}}
                                                 @php
                                                     // Ambil ID yang benar (id_skala atau id)
                                                     $idSkala = $skala->id_skala ?? $skala->id;
@@ -95,11 +94,11 @@
                                     <button type="submit" class="btn btn-navy btn-lg rounded-pill fw-bold shadow-lg transition-btn py-3">
                                         <i class="fas fa-paper-plane me-2"></i> KIRIM LAMARAN SEKARANG
                                     </button>
-                                    <a href="{{ route('lowongan.show', $lowongan->id_lowongan) }}" class="btn btn-light text-muted fw-bold rounded-pill">Batal</a>
+                                    <a href="{{ route('lowongan.index') }}" class="btn btn-light text-muted fw-bold rounded-pill">Batal</a>
                                 </div>
                             </div>
                         </div>
-                        
+                         
                     </form>
                 </div>
             </div>

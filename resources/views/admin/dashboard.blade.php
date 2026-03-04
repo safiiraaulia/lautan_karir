@@ -3,6 +3,27 @@
 @section('title', 'Dashboard HRD/Admin')
 
 @section('content')
+
+<style>
+    .badge-soft {
+        font-weight: 600;
+        /* Padding disesuaikan agar tingginya sama dengan btn-sm */
+        padding: 0.25rem 0.75rem; 
+        border-radius: 50px;
+        /* Ukuran font disamakan dengan standar tombol kecil */
+        font-size: 12px;
+        display: inline-block;
+        border: 1px solid transparent;
+        line-height: 1.5;
+        text-align: center;
+        vertical-align: middle;
+    }
+    
+    .badge-soft-success { background-color: #e8f5e9; color: #2e7d32; border-color: #c8e6c9; }
+    .badge-soft-danger { background-color: #ffebee; color: #c62828; border-color: #ffcdd2; }
+    .badge-soft-warning { background-color: #fff8e1; color: #f57f17; border-color: #ffecb3; }
+</style>
+
 <div class="container-fluid">
     <div class="mb-4">
         <h3 class="font-weight-bold text-dark">Overview Rekrutmen</h3>
@@ -63,14 +84,18 @@
                                     <td class="font-weight-medium">{{ $lamaran->pelamar->nama }}</td>
                                     <td>{{ $lamaran->lowongan->posisi->nama_posisi ?? '-' }}</td>
                                     <td>{{ $lamaran->lowongan->dealer->singkatan ?? '-' }}</td>
-                                    <td>
-                                        @if($lamaran->status == 'Lolos Administrasi')
-                                            <span class="badge badge-success px-3 py-2">Lolos Admin</span>
-                                        @elseif($lamaran->status == 'Gagal Administrasi')
-                                            <span class="badge badge-danger px-3 py-2">Gagal Admin</span>
-                                        @else
-                                            <span class="badge badge-warning px-3 py-2">Proses Admin</span>
-                                        @endif
+                                   <td>
+                                    @php
+                                        $status = strtolower($lamaran->status);
+                                    @endphp
+
+                                    @if(str_contains($status, 'lolos'))
+                                        <span class="badge-soft badge-soft-success">Lolos Seleksi</span>
+                                    @elseif(str_contains($status, 'gagal'))
+                                        <span class="badge-soft badge-soft-danger">Gagal</span>
+                                    @else
+                                        <span class="badge-soft badge-soft-warning">Dalam Pengecekan</span>
+                                    @endif
                                     </td>
                                     <td>
                                         <a href="{{ route('admin.pelamar.show', $lamaran->pelamar_id) }}" class="btn btn-sm btn-primary rounded-pill px-3 shadow-sm">Lihat Profil</a>
@@ -78,7 +103,7 @@
                                 </tr>
                                 @empty
                                 <tr>
-                                    <td colspan="5" class="text-center py-4 text-muted">Belum ada lamaran yang masuk.</td>
+                                    <td colspan="5" class="text-center text-muted py-4">Belum ada lamaran yang masuk.</td>
                                 </tr>
                                 @endforelse
                             </tbody>

@@ -211,7 +211,7 @@
         // Render HTML Detail
         function renderDetail(job) {
             const isLoggedIn = {{ Auth::guard('pelamar')->check() ? 'true' : 'false' }};
-            const loginUrl = "{{ route('pelamar.login') }}";
+            const loginUrl = "{{ route('login') }}";
             const applyUrl = `/pelamar/lamar/${job.id}`;
             const detailContainer = document.getElementById('detailContent');
 

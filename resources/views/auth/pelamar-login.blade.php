@@ -19,11 +19,16 @@
                                 <i class="fas fa-exclamation-circle me-1"></i> {{ session('error') }}
                             </div>
                         @endif
+                        @if (session('status'))
+                            <div class="alert alert-success text-center mb-4 py-2 rounded-3 shadow-sm border-0 small">
+                                <i class="fas fa-check-circle me-1"></i> {{ session('status') }}
+                            </div>
+                        @endif
 
-                        <form method="POST" action="{{ route('pelamar.login') }}">
+                        {{-- FIX: Ganti 'pelamar.login' menjadi 'login' --}}
+                        <form method="POST" action="{{ route('login') }}">
                             @csrf
                             
-                            {{-- PERUBAHAN DISINI: Menggunakan Email sebagai input --}}
                             @php
                                 $fields = [
                                     [
@@ -71,8 +76,8 @@
                                     <input class="form-check-input" type="checkbox" name="remember" id="remember" {{ old('remember') ? 'checked' : '' }}>
                                     <label class="form-check-label small text-muted" for="remember">Ingat Saya</label>
                                 </div>
-                                @if (Route::has('password.request'))
-                                    <a class="text-decoration-none small text-navy fw-bold" href="{{ route('password.request') }}">Lupa Password?</a>
+                                @if (Route::has('pelamar.password.request'))
+                                    <a class="text-decoration-none small text-navy fw-bold" href="{{ route('pelamar.password.request') }}">Lupa Password?</a>
                                 @endif
                             </div>
 
@@ -83,7 +88,7 @@
                             </div>
 
                             <div class="text-center">
-                                <p class="small text-muted mb-0">Belum punya akun? <a href="{{ route('pelamar.register') }}" class="text-decoration-none fw-bold text-navy transition-link">Daftar di sini</a></p>
+                                <p class="small text-muted mb-0">Belum punya akun? <a href="{{ route('register') }}" class="text-decoration-none fw-bold text-navy transition-link">Daftar di sini</a></p>
                             </div>
                         </form>
                     </div>

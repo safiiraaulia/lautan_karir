@@ -7,172 +7,152 @@ use App\Models\Posisi;
 use App\Models\Kriteria;
 use App\Models\SkalaNilai;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class PosisiController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        // Ambil relasi kriteria (untuk count)
-        $posisis = Posisi::withCount('kriteria')->orderBy('nama_posisi', 'asc')->get();
-        return view('admin.posisi.index', compact('posisis'));
-    }
+        $isTrash = $request->has('trash');
+        
+        $query = Posisi::withCount('kriteria');
 
+        if ($isTrash) {
+            $posisis = $query->onlyTrashed()->latest('deleted_at')->get();
+        } else {
+            $posisis = $query->orderBy('nama_posisi', 'asc')->get();
+        }
+
+        return view('admin.posisi.index', compact('posisis', 'isTrash'));
+    }
     public function create()
     {
-        // Form create tidak perlu data kriteria lagi
         return view('admin.posisi.create');
     }
 
     public function store(Request $request)
     {
-        // Validasi HANYA untuk info posisi
-        $request->validate([
+        $validated = $request->validate([
             'kode_posisi' => 'required|string|max:10|unique:posisi,kode_posisi',
             'nama_posisi' => 'required|string|max:255',
-            'level' => 'nullable|string',
-            'is_active' => 'required|boolean',
+            'level'       => 'nullable|string',
+            'is_active'   => 'required|boolean',
         ]);
 
-        Posisi::create($request->all());
+        Posisi::create($validated);
 
         return redirect()->route('admin.posisi.index')
-                         ->with('success', 'Posisi baru berhasil ditambahkan. Silakan atur kriteria & skala.');
+            ->with('success', 'Posisi baru berhasil ditambahkan.');
     }
 
     public function edit(Posisi $posisi)
     {
-        // Form edit tidak perlu data kriteria lagi
         return view('admin.posisi.edit', compact('posisi'));
     }
 
-    /* ======================================================
-    == METHOD BARU UNTUK HALAMAN SETUP SAW (SUDAH BENAR) ==
-    ======================================================
-    */
-    /* ======================================================
-       UPDATE BAGIAN INI DI PosisiController.php
-       ====================================================== */
+    public function update(Request $request, Posisi $posisi)
+    {
+        $validated = $request->validate([
+            'nama_posisi' => 'required|string|max:255',
+            'level'       => 'nullable|string',
+            'is_active'   => 'required|boolean',
+        ]);
 
+        $posisi->update($validated);
+
+        return redirect()->route('admin.posisi.index')
+            ->with('success', 'Info Posisi berhasil diperbarui.');
+    }
+
+    public function destroy(Posisi $posisi)
+    {
+        $posisi->delete();
+        return back()->with('success', 'Posisi berhasil dipindahkan ke tempat sampah.');
+    }
+
+    public function restore($id)
+    {
+        $posisi = Posisi::onlyTrashed()->findOrFail($id);
+        $posisi->restore();
+        return redirect()->route('admin.posisi.index')->with('success', 'Posisi berhasil dipulihkan.');
+    }
+
+    public function forceDelete($id)
+    {
+        $posisi = Posisi::onlyTrashed()->findOrFail($id);
+        
+        DB::transaction(function () use ($posisi) {
+            $posisi->kriteria()->detach();
+            SkalaNilai::where('posisi_id', $posisi->kode_posisi)->delete();
+            $posisi->forceDelete();
+        });
+
+        return back()->with('success', 'Posisi dihapus permanen.');
+    }
+    
+//SAW CONFIGURATION
     public function setupSaw(Posisi $posisi)
     {
         $kriterias = Kriteria::orderBy('nama_kriteria')->get();
 
-        // UBAH DISINI: Kita ambil Bobot DAN Syarat sekaligus
-        $pivot_tersimpan = $posisi->kriteria()
-            ->get()
-            ->mapWithKeys(function ($item) {
-                return [$item->id_kriteria => [
-                    'bobot'  => $item->pivot->bobot_saw,
-                    'syarat' => $item->pivot->syarat // <-- Tambahan baru
-                ]];
-            })->toArray();
+        $pivot_tersimpan = $posisi->kriteria->mapWithKeys(function ($item) {
+            return [$item->id_kriteria => [
+                'bobot'  => $item->pivot->bobot_saw,
+                'syarat' => $item->pivot->syarat
+            ]];
+        })->toArray();
 
         $skala_tersimpan = SkalaNilai::where('posisi_id', $posisi->kode_posisi)
             ->get()
             ->groupBy('kriteria_id'); 
 
-        // Variable dikirim ke view sebagai 'pivot_tersimpan'
-        return view('admin.posisi.setup_saw', compact(
-            'posisi', 
-            'kriterias', 
-            'pivot_tersimpan', 
-            'skala_tersimpan'
-        ));
+        return view('admin.posisi.setup_saw', compact('posisi', 'kriterias', 'pivot_tersimpan', 'skala_tersimpan'));
     }
 
     public function storeSaw(Request $request, Posisi $posisi)
     {
         $request->validate([
             'kriteria' => 'nullable|array',
-            'skala' => 'nullable|array',
+            'skala'    => 'nullable|array',
         ]);
 
-        // 1. Validasi Total Bobot (Logic tetap sama)
-        $totalBobot = 0;
-        if ($request->has('kriteria')) {
-            foreach ($request->kriteria as $id => $data) {
-                if (isset($data['id']) && isset($data['bobot'])) {
-                    $totalBobot += (float) $data['bobot'];
-                }
-            }
-        }
+        // Validasi Total Bobot 
+        $totalBobot = collect($request->kriteria)->whereNotNull('id')->sum('bobot');
 
         if (abs($totalBobot - 1) > 0.001) {
-            return back()
-                ->withInput()
-                ->with('error', 'Gagal Menyimpan: Total Bobot (W) harus berjumlah 1. Total saat ini: ' . $totalBobot);
+            return back()->withInput()->with('error', "Gagal: Total Bobot harus 1. Saat ini: $totalBobot");
         }
 
-        // 2. Simpan Data Pivot (Bobot & Syarat)
-        if ($request->has('kriteria')) {
-            $pivotData = [];
-            foreach ($request->kriteria as $kriteria_id => $data) {
-                // Hanya simpan yang dicentang
-                if (isset($data['id']) && !empty($data['bobot'])) {
-                    $pivotData[$kriteria_id] = [
-                        'bobot_saw' => $data['bobot'],
-                        'syarat'    => $data['syarat'] ?? null // <-- Simpan Syarat disini
-                    ];
-                }
-            }
-            // Sync data ke tabel kriteria_posisi
+        DB::transaction(function () use ($request, $posisi) {
+            // 1. Sync Bobot & Syarat
+            $pivotData = collect($request->kriteria)->filter(fn($data) => isset($data['id']) && !empty($data['bobot']))
+                ->mapWithKeys(fn($data, $id) => [$id => [
+                    'bobot_saw' => $data['bobot'], 'syarat' => $data['syarat'] ?? null
+                ]])->toArray();
+
             $posisi->kriteria()->sync($pivotData);
-        } else {
-            $posisi->kriteria()->sync([]);
-        }
 
-        // 3. Simpan Skala Nilai (Logic tetap sama)
-        SkalaNilai::where('posisi_id', $posisi->kode_posisi)->delete();
-        
-        if ($request->has('skala')) {
+            // 2. Simpan Skala Nilai (1-5)
+            SkalaNilai::where('posisi_id', $posisi->kode_posisi)->delete();
+            
             $skalaData = [];
-            foreach ($request->skala as $kriteria_id => $skalas) {
+            foreach ($request->skala ?? [] as $kriteria_id => $skalas) {
                 if (isset($request->kriteria[$kriteria_id]['id'])) {
-                    foreach ($skalas as $skala) {
-                        if (!empty($skala['deskripsi']) && isset($skala['nilai'])) {
+                    foreach ($skalas as $s) {
+                        if (!empty($s['deskripsi']) && ($s['nilai'] >= 1 && $s['nilai'] <= 5)) {
                             $skalaData[] = [
-                                'posisi_id' => $posisi->kode_posisi,
+                                'posisi_id'   => $posisi->kode_posisi,
                                 'kriteria_id' => $kriteria_id,
-                                'deskripsi' => $skala['deskripsi'],
-                                'nilai' => $skala['nilai'],
+                                'deskripsi'   => $s['deskripsi'],
+                                'nilai'       => (int) $s['nilai'],
                             ];
                         }
                     }
                 }
             }
-            if(!empty($skalaData)) {
-                SkalaNilai::insert($skalaData);
-            }
-        }
+            if (!empty($skalaData)) SkalaNilai::insert($skalaData);
+        });
 
-        return redirect()->route('admin.posisi.index')
-                         ->with('success', 'Kriteria, Bobot, dan Syarat berhasil disimpan.');
-    }
-    /* ======================================================
-    == BATAS METHOD BARU ==
-    ======================================================
-    */
-
-
-    public function update(Request $request, Posisi $posisi)
-    {
-        // Validasi HANYA untuk info posisi
-        $request->validate([
-            'nama_posisi' => 'required|string|max:255',
-            'level' => 'nullable|string',
-            'is_active' => 'required|boolean',
-        ]);
-
-        $posisi->update($request->only('nama_posisi', 'level', 'is_active'));
-
-        return redirect()->route('admin.posisi.index')
-                         ->with('success', 'Info Posisi berhasil diperbarui.');
-    }
-
-    public function destroy(Posisi $posisi)
-    {
-        $posisi->delete(); // Ini Soft Delete
-        return redirect()->route('admin.posisi.index')
-                         ->with('success', 'Posisi berhasil dihapus.');
+        return redirect()->route('admin.posisi.index')->with('success', 'Konfigurasi SAW diperbarui.');
     }
 }

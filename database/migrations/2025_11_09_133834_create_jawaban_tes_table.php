@@ -12,21 +12,25 @@ class CreateJawabanTesTable extends Migration
      * @return void
      */
     public function up()
-    {
-        Schema::create('jawaban_tes', function (Blueprint $table) {
-            $table->id();
-            $table->unsignedBigInteger('lamaran_id');
-            $table->unsignedBigInteger('soal_id');
-            $table->text('jawaban_teks')->nullable(); // Untuk esai atau pilihan ganda
-            $table->string('path_file_upload')->nullable(); // Untuk soal upload
+{
+    Schema::disableForeignKeyConstraints();
 
-            $table->timestamp('dijawab_pada')->useCurrent(); // Tracking waktu jawab
+    Schema::create('jawaban_tes', function (Blueprint $table) {
+        $table->id('id_jawaban');
+        $table->unsignedBigInteger('pelamar_id'); 
+        $table->unsignedBigInteger('soal_id'); 
+        $table->string('most', 5)->nullable();
+        $table->string('least', 5)->nullable();
+        $table->string('jawaban_papikostik', 5)->nullable();
+        $table->timestamps();
 
-            $table->foreign('lamaran_id')->references('id_lamaran')->on('lamaran')->onDelete('cascade');
-            $table->foreign('soal_id')->references('id_soal')->on('soal');
-            $table->timestamps();
-        });
-    }
+        $table->foreign('soal_id')->references('id_soal_kelompok')->on('soal_kelompok')->onDelete('cascade');
+        
+        $table->foreign('pelamar_id')->references('id')->on('pelamars')->onDelete('cascade');
+    });
+
+    Schema::enableForeignKeyConstraints();
+}
 
     /**
      * Reverse the migrations.

@@ -17,7 +17,6 @@ class CreateJenisTesTable extends Migration
             $table->id('id_jenis_tes'); // Sesuai brief
             $table->string('nama_tes');
             $table->text('instruksi');
-            $table->integer('durasi_menit');
             $table->timestamps();
         });
     }

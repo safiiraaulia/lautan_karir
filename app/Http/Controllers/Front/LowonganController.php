@@ -6,11 +6,17 @@ use App\Http\Controllers\Controller;
 use App\Models\Lowongan;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 
 class LowonganController extends Controller
 {
     public function index()
     {
+        if (Auth::check() && Auth::user()->status == 'Nonaktif') {
+            Auth::logout(); 
+            return redirect()->route('login')->with('error', 'Akun Anda telah dinonaktifkan oleh Admin. Silakan hubungi HRD PT. Lautan Teduh.');
+        }
+
         $lowongans = Lowongan::with(['posisi', 'dealer'])
                             ->where('status', 'Buka')
                             ->whereDate('tgl_tutup', '>=', now())
@@ -31,12 +37,8 @@ class LowonganController extends Controller
         return view('public.lowongan.show', compact('lowongan'));
     }
 
-    /**
-     * Function untuk AJAX Detail (Yang Gagal DImuat Tadi)
-     */
     public function detail($id)
     {
-        // PERBAIKAN: Gunakan where('id_lowongan', $id) agar pasti cocok dengan database
         $lowongan = Lowongan::with(['dealer', 'posisi.kriteria'])
                     ->where('id_lowongan', $id)
                     ->first();

@@ -3,7 +3,6 @@
 @section('title', 'Lengkapi Profil - Lautan Karir')
 
 @section('content')
-{{-- Hero Header Kecil --}}
 <div class="bg-navy text-white py-5 mb-n5 shadow-sm" style="background: linear-gradient(135deg, #103783 0%, #4b6cb7 100%); padding-bottom: 80px !important;">
     <div class="container">
         <h3 class="fw-bold mb-1 text-center">Lengkapi Profil Anda</h3>
@@ -30,26 +29,33 @@
             @endif
 
             <div class="card shadow-lg border-0 rounded-4 overflow-hidden">
-                <div class="card-header bg-white p-0 border-bottom">
-                    <ul class="nav nav-tabs nav-justified border-0" id="profileTabs" role="tablist">
-                        @php
-                            $tabs = [
-                                'pribadi' => ['icon' => 'user', 'label' => 'Pribadi'],
-                                'keluarga' => ['icon' => 'users', 'label' => 'Keluarga'],
-                                'pendidikan' => ['icon' => 'graduation-cap', 'label' => 'Pendidikan'],
-                                'pekerjaan' => ['icon' => 'briefcase', 'label' => 'Pekerjaan'],
-                                'berkas' => ['icon' => 'file-upload', 'label' => 'Berkas']
-                            ];
-                        @endphp
-                        @foreach($tabs as $key => $tab)
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link py-3 border-0 fw-bold {{ $loop->first ? 'active' : '' }}" id="{{ $key }}-tab" data-bs-toggle="tab" data-bs-target="#{{ $key }}" type="button" role="tab">
-                                    <i class="fas fa-{{ $tab['icon'] }} me-1"></i> <span class="d-none d-md-inline">{{ $tab['label'] }}</span>
-                                </button>
-                            </li>
-                        @endforeach
-                    </ul>
-                </div>
+            {{-- Bagian Header Tab --}}
+            <div class="card-header bg-white p-0">
+                <ul class="nav nav-tabs nav-justified custom-profile-tabs" id="profileTabs" role="tablist">
+                    @php
+                        $tabs = [
+                            'pribadi' => ['icon' => 'user', 'label' => 'Pribadi'],
+                            'keluarga' => ['icon' => 'users', 'label' => 'Keluarga'],
+                            'pendidikan' => ['icon' => 'graduation-cap', 'label' => 'Pendidikan'],
+                            'pekerjaan' => ['icon' => 'briefcase', 'label' => 'Pekerjaan'],
+                            'berkas' => ['icon' => 'file-upload', 'label' => 'Berkas']
+                        ];
+                    @endphp
+                    @foreach($tabs as $key => $tab)
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link py-3 fw-bold {{ $loop->first ? 'active' : '' }}" 
+                                    id="{{ $key }}-tab" 
+                                    data-bs-toggle="tab" 
+                                    data-bs-target="#{{ $key }}" 
+                                    type="button" 
+                                    role="tab">
+                                <i class="fas fa-{{ $tab['icon'] }} me-1"></i> 
+                                <span class="d-none d-md-inline">{{ $tab['label'] }}</span>
+                            </button>
+                        </li>
+                    @endforeach
+                </ul>
+            </div>
 
                 <div class="card-body p-4 p-md-5 bg-light-subtle">
                     <form action="{{ route('pelamar.profile.update') }}" method="POST" enctype="multipart/form-data">
@@ -347,16 +353,49 @@
 <style>
     .text-navy { color: #103783 !important; }
     .bg-navy { background-color: #103783 !important; }
-    .nav-tabs .nav-link { color: #6c757d; border-bottom: 3px solid transparent; transition: all 0.3s; }
-    .nav-tabs .nav-link.active { color: #103783 !important; border-bottom: 3px solid #103783 !important; background-color: #f8f9fa; }
-    .nav-tabs .nav-link:hover { color: #103783; }
-    .bg-soft-navy { background-color: #eef2f6; }
-    .bg-light-subtle { background-color: #f8fafd !important; }
-    .form-control:focus, .form-select:focus { border-color: #4b6cb7; box-shadow: 0 0 0 0.25rem rgba(75, 108, 183, 0.1); }
-    .btn-navy { background-color: #103783; color: white; border: none; }
-    .btn-navy:hover { background-color: #0a265e; color: white; transform: translateY(-2px); }
-    .btn-outline-navy { color: #103783; border-color: #103783; }
-    .btn-outline-navy:hover { background-color: #103783; color: white; }
-    .transition-btn { transition: all 0.3s ease; }
+
+    .custom-tabs-container {
+        border-bottom: 2px solid #e9ecef !important; 
+        position: relative;
+    }
+
+    .custom-tabs-container .nav-link {
+        color: #6c757d;
+        border: none !important; 
+        background: none !important;
+        padding-bottom: 15px;
+        position: relative;
+        transition: all 0.3s ease;
+    }
+
+    /* Garis indikator biru */
+    .custom-tabs-container .nav-link::after {
+        content: "";
+        position: absolute;
+        bottom: -2px; 
+        left: 0;
+        width: 100%;
+        height: 3px;
+        background-color: transparent;
+        transition: all 0.3s ease;
+    }
+
+    .custom-tabs-container .nav-link.active {
+        color: #103783 !important;
+    }
+
+    .custom-tabs-container .nav-link.active::after {
+        background-color: #103783; 
+    }
+
+    .custom-tabs-container .nav-link:hover {
+        color: #103783;
+    }
+
+    .bg-soft-navy { background-color: #f0f4f8; }
+    .form-control, .form-select { border-radius: 8px; border: 1px solid #dce1e7; }
+    .form-control:focus { border-color: #103783; box-shadow: none; }
+    .btn-navy { background-color: #103783; color: white; border: none; transition: 0.3s; }
+    .btn-navy:hover { background-color: #0a265e; transform: translateY(-2px); }
 </style>
 @endsection

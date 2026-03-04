@@ -41,17 +41,11 @@
                 </div>
 
                 <div class="mb-3">
-                    <label for="jenis" class="form-label fw-bold">Jenis Kriteria (Sifat SAW)</label>
-                    <select class="form-select @error('jenis') is-invalid @enderror" id="jenis" name="jenis">
-                        <option value="">-- Pilih Jenis --</option>
-                        <option value="Benefit" {{ old('jenis', $kriteria->jenis) == 'Benefit' ? 'selected' : '' }}>Benefit (Semakin tinggi nilai, semakin bagus)</option>
-                        <option value="Cost" {{ old('jenis', $kriteria->jenis) == 'Cost' ? 'selected' : '' }}>Cost (Semakin rendah nilai, semakin bagus)</option>
-                    </select>
-                    <div class="form-text text-muted small">
-                        <ul>
-                            <li><strong>Benefit:</strong> Contoh: Pendidikan, Pengalaman, Skill.</li>
-                            <li><strong>Cost:</strong> Contoh: Gaji yang diminta.</li>
-                        </ul>
+                    <label class="form-label fw-bold">Jenis Kriteria (Sifat SAW)</label>
+                    <input type="hidden" name="jenis" value="Benefit">
+                    
+                    <div class="form-control bg-light text-muted">
+                        <i class="text-success mr-2"></i> Benefit (Semakin tinggi nilai, semakin bagus)
                     </div>
                     @error('jenis')
                         <div class="invalid-feedback">{{ $message }}</div>

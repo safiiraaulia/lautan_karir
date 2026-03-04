@@ -8,13 +8,17 @@ use Illuminate\Database\Eloquent\Model;
 class OpsiJawaban extends Model
 {
     use HasFactory;
+
     protected $table = 'opsi_jawaban';
     protected $primaryKey = 'id_opsi';
     public $timestamps = false;
 
-    /**
-     * Relasi: Satu Opsi dimiliki oleh Satu Soal
-     */
+    protected $fillable = [
+        'soal_id',    
+        'isi_opsi',    
+        'kode_aspek'   
+    ];
+    
     public function soal()
     {
         return $this->belongsTo(Soal::class, 'soal_id', 'id_soal');

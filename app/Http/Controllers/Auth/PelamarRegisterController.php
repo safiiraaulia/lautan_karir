@@ -47,10 +47,11 @@ class PelamarRegisterController extends Controller
     {
         return Pelamar::create([
             'nama' => $data['nama'],
-            'username' => strtolower(str_replace(' ', '', $data['nama'])) . mt_rand(100, 999),            'email' => $data['email'],
+            'username' => $data['nama'],
+            'email' => $data['email'],
             'nomor_whatsapp' => $data['nomor_whatsapp'],
             'password' => Hash::make($data['password']),
-            'is_active' => true, // Default aktif
+            'is_active' => true,
         ]);
     }
 }

@@ -64,5 +64,6 @@ class Kernel extends HttpKernel
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         'auth.pelamar' => \App\Http\Middleware\PelamarAuth::class,
         'role' => \App\Http\Middleware\CheckRole::class,
+        'checkActive' => \App\Http\Middleware\CheckActivePelamar::class,
     ];
 }

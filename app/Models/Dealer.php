@@ -8,9 +8,10 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Dealer extends Model
 {
-        use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes;
 
     protected $table = 'dealer';
+    
     protected $primaryKey = 'kode_dealer';
     public $incrementing = false; 
     protected $keyType = 'string';
@@ -21,6 +22,10 @@ class Dealer extends Model
         'kota',
         'singkatan',
         'is_active'
+    ];
+    protected $casts = [
+        'is_active' => 'boolean',
+        'deleted_at' => 'datetime',
     ];
 
     public function lowongan()

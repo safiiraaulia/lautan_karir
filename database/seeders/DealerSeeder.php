@@ -10,13 +10,10 @@ class DealerSeeder extends Seeder
 {
     public function run()
     {
-        // 1. Matikan pengecekan Foreign Key
         Schema::disableForeignKeyConstraints();
 
-        // 2. Kosongkan tabel
         Dealer::truncate();
 
-        // 3. Nyalakan kembali pengecekan Foreign Key
         Schema::enableForeignKeyConstraints();
 
         $dealers = [
