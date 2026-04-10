@@ -7,10 +7,8 @@
 <style>
     .badge-soft {
         font-weight: 600;
-        /* Padding disesuaikan agar tingginya sama dengan btn-sm */
         padding: 0.25rem 0.75rem; 
         border-radius: 50px;
-        /* Ukuran font disamakan dengan standar tombol kecil */
         font-size: 12px;
         display: inline-block;
         border: 1px solid transparent;
@@ -49,7 +47,7 @@
             <div class="small-box shadow-sm" style="background: linear-gradient(135deg, #28a745, #1e7c34); color: white; border-radius: 16px;">
                 <div class="inner">
                     <h3 class="font-weight-bold">{{ $lowonganBuka }}</h3>
-                    <p>Lowongan Sedang Dibuka</p>
+                    <p>Lowongan Tersedia</p>
                 </div>
                 <div class="icon">
                     <i class="fas fa-briefcase"></i>
@@ -83,7 +81,7 @@
                                 <tr>
                                     <td class="font-weight-medium">{{ $lamaran->pelamar->nama }}</td>
                                     <td>{{ $lamaran->lowongan->posisi->nama_posisi ?? '-' }}</td>
-                                    <td>{{ $lamaran->lowongan->dealer->singkatan ?? '-' }}</td>
+                                    <td>{{ $lamaran->lowongan->dealer->nama_dealer ?? '-' }}</td>
                                    <td>
                                     @php
                                         $status = strtolower($lamaran->status);

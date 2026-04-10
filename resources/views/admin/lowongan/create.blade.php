@@ -32,7 +32,7 @@
                         <option value="">-- Pilih Dealer --</option>
                         @foreach($dealers as $dealer)
                             <option value="{{ $dealer->kode_dealer }}" {{ old('dealer_id') == $dealer->kode_dealer ? 'selected' : '' }}>
-                                {{ $dealer->nama_dealer }} ({{ $dealer->kota }})
+                                {{ $dealer->nama_dealer }} ({{ $dealer->kode_dealer }})
                             </option>
                         @endforeach
                     </select>

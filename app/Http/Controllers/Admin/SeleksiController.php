@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\DB;
 class SeleksiController extends Controller
 {
     public function index() {
-        $lowongans = Lowongan::with('posisi', 'dealer')->where('status', 'Buka')->latest()->get();
+        $lowongans = Lowongan::with('posisi', 'dealer')->latest()->get();
         return view('admin.seleksi.index', compact('lowongans'));
     }
 
@@ -20,28 +20,38 @@ class SeleksiController extends Controller
         $lowongan->load('posisi.kriteria');
         $hasil_akhir = $this->hitungSaw($lowongan);
         $kriterias = $lowongan->posisi->kriteria;
+
+        if (!empty($hasil_akhir)) {
+            DB::transaction(function () use ($hasil_akhir) {
+                foreach ($hasil_akhir as $item) {
+                    if ($item['nilai_v'] > 0) {
+                        Lamaran::where('id_lamaran', $item['lamaran_id'])->update([
+                            'skor_akhir_saw' => $item['nilai_v']
+                        ]);
+                    }
+                }
+            });
+        }
         
         return view('admin.seleksi.show', compact('lowongan', 'hasil_akhir', 'kriterias'));
     }
 
-    public function simpanRanking(Lowongan $lowongan) {
-        $lowongan->load('posisi.kriteria');
-        $hasil_akhir = $this->hitungSaw($lowongan);
-        
-        if (empty($hasil_akhir)) return back()->with('error', 'Data pelamar tidak ditemukan.');
+    public function updateKesimpulan(Request $request, $id) {
+    $request->validate([
+        'kesimpulan_disc' => 'required|string|max:1000',
+        'kesimpulan_papi' => 'required|string|max:1000'
+    ]);
 
-        DB::transaction(function () use ($hasil_akhir) {
-            foreach ($hasil_akhir as $item) {
-                if ($item['nilai_v'] > 0) {
-                Lamaran::where('id_lamaran', $item['lamaran_id'])->update([
-                    'skor_akhir_saw' => $item['nilai_v']
-                ]);
-            }
-        }
-    });
+    $lamaran = Lamaran::findOrFail($id);
+    $lamaran->kesimpulan_disc = $request->kesimpulan_disc;
+    $lamaran->kesimpulan_papi = $request->kesimpulan_papi;
+    
+    $lamaran->kesimpulan_tes = "DISC: " . $request->kesimpulan_disc . " | PAPI: " . $request->kesimpulan_papi;
+    
+    $lamaran->save();
 
-        return back()->with('success', 'Hasil perankingan berhasil diperbarui!');
-    }
+    return back()->with('success', 'Hasil analisis DISC & PAPI berhasil disimpan!');
+}
 
     public function updateStatus(Request $request, Lamaran $lamaran) {
         $request->validate(['status' => 'required|in:Proses Seleksi,Lolos Seleksi,Gagal Seleksi']);
@@ -55,7 +65,6 @@ class SeleksiController extends Controller
             ->get();
             
         $kriterias = $lowongan->posisi->kriteria;
-
         if ($lamarans->isEmpty() || $kriterias->isEmpty()) return [];
 
         $minMax = [];
@@ -107,7 +116,8 @@ class SeleksiController extends Controller
                 'status_lamaran' => $lamaran->status,
                 'nilai_v'        => $skor,
                 'nilai_disimpan' => (float)($lamaran->skor_akhir_saw ?? 0),
-                'sudah_tes'      => $sudahTes
+                'sudah_tes'      => $sudahTes,
+                'kesimpulan_tes' => $lamaran->kesimpulan_tes 
             ];
         }
         return $final_data;

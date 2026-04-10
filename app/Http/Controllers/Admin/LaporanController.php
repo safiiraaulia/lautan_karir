@@ -20,6 +20,12 @@ class LaporanController extends Controller
         // --- LOGIKA FILTER ---
         if ($request->has('lowongan_id') && $request->lowongan_id != '') {
             $query->where('lowongan_id', $request->lowongan_id);
+            
+            // --- SYNC SKOR OTOMATIS UNTUK LAPORAN ---
+            $lowongan = Lowongan::find($request->lowongan_id);
+            if ($lowongan) {
+                app(SeleksiController::class)->show($lowongan);
+            }
         }
 
         if ($request->has('status') && $request->status != '') {
@@ -42,8 +48,11 @@ class LaporanController extends Controller
         $selectedLowongan = null; 
         if ($request->has('lowongan_id') && $request->lowongan_id != '') {
             $query->where('lowongan_id', $request->lowongan_id);
-            
             $selectedLowongan = Lowongan::with(['posisi', 'dealer'])->find($request->lowongan_id);
+            
+            if ($selectedLowongan) {
+                app(SeleksiController::class)->show($selectedLowongan);
+            }
         }
 
         if ($request->has('status') && $request->status != '') {

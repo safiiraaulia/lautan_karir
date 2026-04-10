@@ -19,9 +19,9 @@ class Pelamar extends Authenticatable implements CanResetPassword
         // --- Data Akun ---
         'nama', 'username', 'email', 'nomor_whatsapp', 'password', 'is_active',
         // --- File Upload ---
-        'foto', 'path_ktp', 'path_cv', 'path_ijazah', 'path_kk', 'path_lamaran',
+        'foto', 'path_ktp', 'path_cv', 'path_ijazah', 'path_kk', 'path_lamaran', 'path_transkrip',
         // --- Data Pribadi & Fisik ---
-        'kewarganegaraan', 'jenis_kelamin', 'alamat_domisili',
+        'kewarganegaraan', 'jenis_kelamin', 'agama', 'alamat_domisili',
         'tempat_lahir', 'tanggal_lahir', 'status_tempat_tinggal',
         'tinggi_badan', 'berat_badan', 'golongan_darah',
         'no_ktp',

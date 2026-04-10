@@ -8,21 +8,22 @@ use App\Models\Posisi;
 use App\Models\Dealer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class LowonganController extends Controller
 {
     public function index(Request $request)
-{
-    $isTrash = $request->has('trash');
-    $query = Lowongan::with(['posisi', 'dealer']);
+    {
+        $isTrash = $request->has('trash');
+        $query = Lowongan::with(['posisi', 'dealer']);
 
-    if ($isTrash) {
-        $lowongans = $query->onlyTrashed()->latest('deleted_at')->get();
-    } else {
-        $lowongans = $query->latest()->get();
-    }
+        if ($isTrash) {
+            $lowongans = $query->onlyTrashed()->latest('deleted_at')->get();
+        } else {
+            $lowongans = $query->latest()->get();
+        }
 
-    return view('admin.lowongan.index', compact('lowongans', 'isTrash'));
+        return view('admin.lowongan.index', compact('lowongans', 'isTrash'));
     }
 
     public function create()
@@ -42,6 +43,11 @@ class LowonganController extends Controller
             'status' => 'required|in:Buka,Tutup',
             'deskripsi' => 'nullable|string',
         ]);
+
+        // --- TAMBAHAN LOGIKA OTOMATIS ---
+        if (Carbon::parse($validated['tgl_tutup'])->isPast()) {
+            $validated['status'] = 'Tutup';
+        }
 
         Lowongan::create($validated);
         return redirect()->route('admin.lowongan.index')->with('success', 'Lowongan baru berhasil ditambahkan.');
@@ -64,6 +70,11 @@ class LowonganController extends Controller
             'status' => 'required|in:Buka,Tutup',
             'deskripsi' => 'nullable|string',
         ]);
+
+        // --- TAMBAHAN LOGIKA OTOMATIS ---
+        if (Carbon::parse($validated['tgl_tutup'])->isPast()) {
+            $validated['status'] = 'Tutup';
+        }
 
         $lowongan->update($validated);
         return redirect()->route('admin.lowongan.index')->with('success', 'Lowongan berhasil diperbarui.');

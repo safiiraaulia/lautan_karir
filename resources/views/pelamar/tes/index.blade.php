@@ -37,20 +37,20 @@
         .autosave-badge.show { opacity: 1; }
 
         .btn-navy {
-        background-color: #002366; /* Warna Navy Lautan Karir */
-        border-color: #002366;
-        transition: all 0.3s ease;
-    }
+            background-color: #002366; 
+            border-color: #002366;
+            transition: all 0.3s ease;
+        }
 
-    .btn-navy:hover {
-        background-color: #001a4d; /* Warna lebih gelap saat di-hover */
-        transform: translateY(-2px); /* Efek melayang sedikit */
-        box-shadow: 0 5px 15px rgba(0, 35, 102, 0.3) !important;
-    }
+        .btn-navy:hover {
+            background-color: #001a4d; 
+            transform: translateY(-2px); 
+            box-shadow: 0 5px 15px rgba(0, 35, 102, 0.3) !important;
+        }
 
-    .btn-navy:active {
-        transform: translateY(0);
-    }
+        .btn-navy:active {
+            transform: translateY(0);
+        }
     </style>
 </head>
 <body>
@@ -90,11 +90,21 @@
                                 <span class="font-weight-bold mr-2">2.</span>
                                 <div><i class="fas fa-save text-info mr-1"></i> Tes hanya bisa dikirim jika <b>"Kedua tes diselesaikan."</b> </div>
                             </div>
-                            <div class="d-flex align-items-start">
+                            <div class="d-flex align-items-start mb-3">
                                 <span class="font-weight-bold mr-2">3.</span>
-                                <div><i class="fas fa-paper-plane text-warning mr-1"></i> Jawaban <b>tersimpan otomatis</b>. Anda bebas menutup halaman dan melanjutkan kembali kapan saja sampai lowongan masih tersedia.</div>
+                                <div><i class="fas fa-paper-plane text-warning mr-1"></i> Jawaban <b>tersimpan otomatis</b>.</div>
+                            </div>
+
+                            <div class="alert alert-danger border-0 small mb-0 shadow-sm animate__animated animate__headShake">
+                                <div class="d-flex">
+                                    <i class="fas fa-exclamation-triangle mt-1 me-2"></i>
+                                    <div>
+                                        <strong>Penting:</strong> Pengerjaan tes ini hanya dapat dilakukan selama periode pendaftaran lowongan masih dibuka. Pastikan Anda menyelesaikan seluruh rangkaian tes sebelum batas waktu berakhir.
+                                    </div>
+                                </div>
                             </div>
                         </div>
+                        {{-- AKHIR BAGIAN YANG DIRAPIKAN --}}
                     </div>
                 </div>
             </div>
@@ -148,7 +158,7 @@
                         <div id="instruction-content" class="text-secondary mb-4" style="font-size: 1.1rem; line-height: 1.6;"></div>
                         
                         <div class="alert alert-info border-0 small">
-                            <i class="fas fa-lightbulb mr-1"></i> Tips: Kerjakan dengan jujur dan jadilah diri sendiri. Jawaban Anda tersimpan otomatis.
+                            <i class="fas fa-lightbulb mr-1"></i> Tips: Kerjakan dengan jujur. Jawaban Anda tersimpan otomatis.
                         </div>
 
                         <div class="d-flex justify-content-between mt-4">
@@ -193,7 +203,6 @@
                         SIMPAN & KEMBALI KE MENU 
                         <i class="fas fa-chevron-right ml-2"></i>
                     </button>
-                    <p class="text-muted small mt-2">Jawaban Anda sudah aman tersimpan.</p>
                 </div>
             </div>
         </div>
@@ -201,8 +210,11 @@
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
-        const STORAGE_KEY_PAPI = 'lautan_karir_papi';
-        const STORAGE_KEY_DISC = 'lautan_karir_disc';
+        // --- LOGIKA KUNCI STORAGE UNIK PER PELAMAR ---
+        const PELAMAR_ID = {{ Auth::guard('pelamar')->id() }};
+        const STORAGE_KEY_PAPI = 'papi_user_' + PELAMAR_ID;
+        const STORAGE_KEY_DISC = 'disc_user_' + PELAMAR_ID;
+
         const TOTAL_PAPI = 90;
         const TOTAL_DISC = 24;
 
@@ -220,8 +232,8 @@
             currentTestType = type;
             const title = type === 'papi' ? 'Tes Papikostik' : 'Tes DISC';
             const content = type === 'papi' 
-                ? '<p>Tes ini terdiri dari 90 pasang pernyataan. Pada setiap nomor, pilihlah salah satu dari dua pernyataan (<b>A</b> atau <b>B</b>) yang menurut Anda paling menggambarkan diri Anda di tempat kerja.</p><p>Jika keduanya terasa cocok, pilihlah yang <b>paling</b> mendekati kebenaran.</p>'
-                : '<p>Terdapat 24 kelompok kata. Pada setiap kelompok, Anda wajib memilih:<br>1. Satu pernyataan yang <b>Paling (Most/M)</b> menggambarkan Anda.<br>2. Satu pernyataan yang <b>Kurang (Least/L)</b> menggambarkan Anda.</p>';
+                ? '<p>Tes ini terdiri dari 90 pasang pernyataan. Pada setiap nomor, pilihlah salah satu dari dua pernyataan (<b>A</b> atau <b>B</b>) yang menurut Anda paling menggambarkan diri Anda di tempat kerja.</p>'
+                : '<p>Terdapat 24 kelompok kata. Pada setiap kelompok, Anda wajib memilih satu yang <b>Paling (M)</b> dan satu yang <b>Kurang (L)</b> menggambarkan Anda.</p>';
             
             $('#instruction-title').text(title);
             $('#instruction-content').html(content);
@@ -234,8 +246,19 @@
             showScreen('screen-test');
             $('#soal-container-papi').toggle(currentTestType === 'papi');
             $('#soal-container-disc').toggle(currentTestType === 'disc');
-            $('#hint-text').text(currentTestType === 'papi' ? 'Klik langsung pada kotak pernyataan yang Anda pilih.' : 'Pilih tepat satu M (Most) dan satu L (Least) per baris kelompok.');
-            
+
+            if (currentTestType === 'papi') {
+                $('#hint-text').html('Klik langsung pada kotak pernyataan yang Anda pilih.');
+            } else {
+                $('#hint-text').html(
+                    'Pilih tepat satu M dan satu L per baris kelompok.' +
+                    '<br><small class="text-dark mt-1 d-block">' +
+                    '<b>M (Most)</b> = Pernyataan yang <b>paling mencerminkan</b> diri Anda &nbsp;|&nbsp; ' +
+                    '<b>L (Least)</b> = Pernyataan yang <b>paling tidak mencerminkan</b> diri Anda' +
+                    '</small>'
+                );
+            }
+
             renderSoal();
             loadSavedAnswers();
             updateProgressBar();
@@ -272,7 +295,6 @@
                     <div class="mb-5 border-bottom pb-4">
                         <div class="d-flex align-items-center mb-2">
                              <span class="badge badge-navy text-white mr-2">Grup {{ $soal->nomor_kelompok }}</span>
-                             <small class="text-muted font-weight-bold">Pilih satu M dan satu L</small>
                         </div>
                         <table class="table table-bordered bg-white shadow-sm">
                             <thead class="thead-light text-center small">
@@ -285,12 +307,12 @@
                                     <td class="text-center">
                                         <input type="radio" name="disc_{{ $soal->id_soal_kelompok }}_m" 
                                                onchange="saveDiscAnswer({{ $soal->id_soal_kelompok }}, 'M', '{{ $opsi->kode_aspek }}')" 
-                                               style="width:20px; height:20px" value="{{ $opsi->kode_aspek }}">
+                                               value="{{ $opsi->kode_aspek }}">
                                     </td>
                                     <td class="text-center">
                                         <input type="radio" name="disc_{{ $soal->id_soal_kelompok }}_l" 
                                                onchange="saveDiscAnswer({{ $soal->id_soal_kelompok }}, 'L', '{{ $opsi->kode_aspek }}')" 
-                                               style="width:20px; height:20px" value="{{ $opsi->kode_aspek }}">
+                                               value="{{ $opsi->kode_aspek }}">
                                     </td>
                                 </tr>
                                 @endforeach
@@ -365,7 +387,6 @@
             let countDisc = 0;
             Object.values(ansDisc).forEach(v => { if(v.M && v.L) countDisc++; });
 
-            // UI PAPI
             if(countPapi >= TOTAL_PAPI) {
                 $('#card-papi').addClass('completed').removeClass('incomplete');
                 $('#status-papi').html('<div class="text-success font-weight-bold"><i class="fas fa-check-circle mr-1"></i> Selesai</div>');
@@ -377,7 +398,6 @@
                 $('#status-papi').html('<button class="btn btn-outline-primary rounded-pill px-4">Mulai</button>');
             }
 
-            // UI DISC
             if(countDisc >= TOTAL_DISC) {
                 $('#card-disc').addClass('completed').removeClass('incomplete');
                 $('#status-disc').html('<div class="text-success font-weight-bold"><i class="fas fa-check-circle mr-1"></i> Selesai</div>');
@@ -389,7 +409,6 @@
                 $('#status-disc').html('<button class="btn btn-outline-success rounded-pill px-4">Mulai</button>');
             }
 
-            // Tombol Submit Gabungan
             if(countPapi >= TOTAL_PAPI && countDisc >= TOTAL_DISC) {
                 $('#final-submit-container').fadeIn();
             } else {
@@ -418,7 +437,7 @@
                     alert("Gagal mengirim: " + data.message);
                 }
             })
-            .catch(() => alert("Koneksi bermasalah. Pastikan internet Anda stabil."));
+            .catch(() => alert("Koneksi bermasalah."));
         }
     </script>
 </body>

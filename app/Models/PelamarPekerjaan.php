@@ -15,6 +15,7 @@ class PelamarPekerjaan extends Model
         'nama_perusahaan',
         'posisi',
         'tahun_masuk',
-        'tahun_keluar'
+        'tahun_keluar',
+        'nomor_atasan',
     ];
 }

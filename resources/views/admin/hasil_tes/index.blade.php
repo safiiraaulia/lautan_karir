@@ -2,27 +2,24 @@
 
 @section('content')
 <style>
-    /* Tampilan Browser */
     .table-container { position: relative; height: 75vh; overflow: auto; border: 1px solid #000; background: #fff; }
     .custom-table { border-collapse: separate; border-spacing: 0; width: auto; min-width: 100%; font-size: 10px; border-left: 1px solid #000; border-top: 1px solid #000; }
     
-    /* Sticky Header & Left Column */
     .custom-table thead th { position: sticky; top: 0; z-index: 10; border-right: 1px solid #000; border-bottom: 1px solid #000; text-align: center; height: 35px; white-space: nowrap; }
     .sticky-left { position: sticky; left: 0; background-color: #fff !important; z-index: 20; border-right: 1px solid #000 !important; border-bottom: 1px solid #000 !important; white-space: nowrap; padding: 5px 10px; }
     .sticky-top-left { position: sticky; top: 0; left: 0; z-index: 30 !important; background-color: #f8f9fa !important; border-right: 1px solid #000 !important; border-bottom: 1px solid #000 !important; }
 
-    /* Warna Soft */
     .header-soal-blue { background-color: #d1ecf1 !important; color: #000; font-weight: bold; } 
     .header-ml-yellow { background-color: #fff3cd !important; color: #000; font-weight: bold; } 
     .bg-yellow-fixed { background-color: #ffff00 !important; font-weight: bold; }
     .bg-green-fixed { background-color: #00ff00 !important; font-weight: bold; }
     .cell-n-red { background-color: #ff0000 !important; color: white !important; font-weight: bold; }
 
-    /* Border Dashed */
     .border-inner-dashed { border-right: 1px dashed #666 !important; border-bottom: 1px solid #000 !important; }
     .border-group-solid { border-right: 1px solid #000 !important; border-bottom: 1px solid #000 !important; }
 
-    .custom-table td { padding: 4px; white-space: nowrap; }
+    .custom-table td { padding: 4px; white-space: nowrap; 
+    }
 </style>
 
 <div class="container-fluid py-3">

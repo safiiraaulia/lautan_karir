@@ -14,7 +14,7 @@ class Lamaran extends Model
     protected $primaryKey = 'id_lamaran'; 
 
     protected $fillable = [
-        'pelamar_id', 'lowongan_id', 'tgl_melamar', 'status', 'skor_akhir_saw', 'is_read',
+        'pelamar_id', 'lowongan_id', 'tgl_melamar', 'status', 'skor_akhir_saw', 'kesimpulan_tes', 'kesimpulan_disc', 'kesimpulan_papi', 'is_read',
     ];
 
     protected $casts = [

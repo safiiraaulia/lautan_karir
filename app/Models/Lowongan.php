@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Carbon\Carbon;
 
 class Lowongan extends Model
 {
@@ -27,6 +28,15 @@ class Lowongan extends Model
         'tgl_tutup' => 'date',
         'deleted_at' => 'datetime',
     ];
+
+    // --- TAMBAHAN LOGIKA OTOMATIS ---
+    /**
+     * Cek apakah tanggal saat ini sudah melewati tanggal tutup.
+     */
+    public function getIsExpiredAttribute()
+    {
+        return $this->tgl_tutup && $this->tgl_tutup->isPast();
+    }
 
     public function posisi()
     {

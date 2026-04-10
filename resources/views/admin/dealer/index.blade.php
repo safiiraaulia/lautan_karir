@@ -3,6 +3,37 @@
 @section('title', $isTrash ? 'Data Terhapus - Dealer' : 'Master Dealer')
 
 @section('content')
+{{-- Tambahan CSS untuk DataTables dan Pengecilan Font --}}
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap4.min.css">
+<style>
+    .table-custom {
+        font-size: 12px; 
+        color: #333;
+    }
+    .table-custom th, .table-custom td {
+        padding: 8px 10px !important; 
+        vertical-align: middle !important;
+    }
+
+    .table-custom thead th {
+        text-align: center !important;
+        background-color: #113883 !important; 
+        color: white !important;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+        border: 1px solid #0a2b66 !important; 
+    }
+
+    .table-custom tbody td {
+        border: 1px solid #dee2e6;
+    }
+
+    .dataTables_filter input {
+        height: 30px;
+        font-size: 12px;
+    }
+</style>
+
 <div class="container-fluid mt-4 mb-5">
 
     <div class="d-flex justify-content-between align-items-center mb-4">
@@ -14,31 +45,31 @@
 
         <div class="d-flex" style="gap: 10px;">
             @if($isTrash)
-                <a href="{{ route('admin.dealer.index') }}" class="btn btn-secondary shadow-sm">
+                <a href="{{ route('admin.dealer.index') }}" class="btn btn-secondary shadow-sm btn-sm">
                     <i class="fas fa-arrow-left mr-1"></i> Kembali
                 </a>
             @else
-                <a href="{{ route('admin.dealer.create') }}" class="btn btn-primary shadow-sm">
+                <a href="{{ route('admin.dealer.create') }}" class="btn btn-primary shadow-sm btn-sm">
                     <i class="fas fa-plus mr-1"></i> Tambah Dealer
                 </a>
-                <a href="{{ route('admin.dealer.index', ['trash' => 1]) }}" class="btn btn-outline-danger shadow-sm">
+                <a href="{{ route('admin.dealer.index', ['trash' => 1]) }}" class="btn btn-outline-danger shadow-sm btn-sm">
                     <i class="fas fa-trash-restore mr-1"></i> Lihat Data Terhapus
                 </a>
             @endif
         </div>
     </div>
 
-    <div class="card shadow mb-4 {{ $isTrash ? 'border-left-danger' : 'border-left-primary' }}">
+    <div class="card shadow mb-4 card-black-outline">
         <div class="card-body"> 
             <div class="table-responsive">
-                <table class="table table-bordered table-striped mb-0 align-middle">
-                    <thead class="table-dark text-white text-center">
+                <table class="table table-bordered table-striped table-sm table-custom mb-0 align-middle" id="dealerTable">
+                    <thead>
                         <tr>
-                            <th width="150">KODE DEALER</th>
+                            <th width="120">KODE DEALER</th>
                             <th>NAMA DEALER</th>
                             <th>KOTA</th>
                             <th>SINGKATAN</th>
-                            <th width="{{ $isTrash ? '220' : '180' }}">AKSI</th> 
+                            <th width="{{ $isTrash ? '200' : '150' }}" class="no-sort">AKSI</th> 
                         </tr>
                     </thead>
 
@@ -52,8 +83,7 @@
 
                                 <td class="text-center">
                                     @if($isTrash)
-                                        {{-- Mode Trash --}}
-                                        <button class="btn btn-success btn-sm px-1 shadow-sm" 
+                                        <button class="btn btn-success btn-xs px-2 shadow-sm" 
                                                 onclick="confirmRestore('{{ route('admin.dealer.restore', $row->kode_dealer) }}', '{{ $row->nama_dealer }}')">
                                              Pulihkan
                                         </button>
@@ -61,22 +91,21 @@
                                         <form action="{{ route('admin.dealer.force-delete', $row->kode_dealer) }}"
                                               method="POST" id="form-force-{{ $row->kode_dealer }}" class="d-inline">
                                             @csrf @method('DELETE')
-                                            <button type="button" class="btn btn-dark btn-sm px-1 shadow-sm"
+                                            <button type="button" class="btn btn-dark btn-xs px-2 shadow-sm"
                                                     onclick="confirmForceDelete('{{ $row->kode_dealer }}', '{{ $row->nama_dealer }}')">
-                                                    Hapus Permanen
+                                                    Hapus
                                             </button>
                                         </form>
                                     @else
-                                        {{-- Mode Aktif --}}
                                         <a href="{{ route('admin.dealer.edit', $row->kode_dealer) }}"
-                                           class="btn btn-warning btn-sm shadow-sm">
+                                           class="btn btn-warning btn-xs shadow-sm px-2">
                                              Edit
                                         </a>
 
                                         <form action="{{ route('admin.dealer.destroy', $row->kode_dealer) }}"
                                               method="POST" id="form-delete-{{ $row->kode_dealer }}" class="d-inline">
                                             @csrf @method('DELETE')
-                                            <button type="button" class="btn btn-danger btn-sm shadow-sm"
+                                            <button type="button" class="btn btn-danger btn-xs shadow-sm px-2"
                                                     onclick="confirmDelete('{{ $row->kode_dealer }}', '{{ $row->nama_dealer }}')">
                                                      Hapus
                                             </button>
@@ -85,11 +114,6 @@
                                 </td>
                             </tr>
                         @empty
-                            <tr>
-                                <td colspan="{{ $isTrash ? '5' : '5' }}" class="text-center text-muted py-5">
-                                    {{ $isTrash ? 'Tidak ada data dealer terhapus.' : 'Belum ada data dealer aktif.' }}
-                                </td>
-                            </tr>
                         @endforelse
                     </tbody>
                 </table>
@@ -99,23 +123,33 @@
 </div>
 
 @push('scripts')
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap4.min.js"></script>
+
 <script>
+    $(document).ready(function() {
+        $('#dealerTable').DataTable({
+            "language": {
+                "url": "//cdn.datatables.net/plug-ins/1.10.21/i18n/Indonesian.json"
+            },
+            "columnDefs": [
+                { "orderable": false, "targets": "no-sort" }
+            ],
+            "pageLength": 10,
+            "order": [[ 0, "asc" ]] 
+        });
+    });
+
     function confirmDelete(kode, nama) {
         Swal.fire({
             title: 'Hapus Dealer?',
-            html: `Yakin ingin menghapus <strong>${nama}</strong>? Data akan dipindahkan ke tempat sampah.`,
+            html: `Yakin ingin menghapus <strong>${nama}</strong>?`,
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#d33',
-            cancelButtonColor: '#6c757d',
             confirmButtonText: 'Ya, Hapus!',
-            cancelButtonText: 'Batal',
             reverseButtons: true
-        }).then((result) => {
-            if (result.isConfirmed) {
-                document.getElementById('form-delete-' + kode).submit();
-            }
-        });
+        }).then((result) => { if (result.isConfirmed) { document.getElementById('form-delete-' + kode).submit(); } });
     }
 
     function confirmRestore(url, nama) {
@@ -124,32 +158,20 @@
             html: `Kembalikan data <strong>${nama}</strong> ke daftar aktif?`,
             icon: 'question',
             showCancelButton: true,
-            confirmButtonColor: '#28a745',
-            cancelButtonColor: '#6c757d',
-            confirmButtonText: 'Ya, Pulihkan!',
-            cancelButtonText: 'Batal'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                window.location.href = url;
-            }
-        });
+            confirmButtonColor: '#113883', 
+            confirmButtonText: 'Ya, Pulihkan!'
+        }).then((result) => { if (result.isConfirmed) { window.location.href = url; } });
     }
 
     function confirmForceDelete(kode, nama) {
         Swal.fire({
             title: 'HAPUS PERMANEN?',
-            html: `Anda akan menghapus <strong>${nama}</strong> selamanya. Tindakan ini tidak bisa dibatalkan!`,
+            html: `Data <strong>${nama}</strong> akan dihapus selamanya!`,
             icon: 'error',
             showCancelButton: true,
             confirmButtonColor: '#212529',
-            cancelButtonColor: '#6c757d',
-            confirmButtonText: 'Ya, Hapus!',
-            cancelButtonText: 'Batal'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                document.getElementById('form-force-' + kode).submit();
-            }
-        });
+            confirmButtonText: 'Ya, Hapus!'
+        }).then((result) => { if (result.isConfirmed) { document.getElementById('form-force-' + kode).submit(); } });
     }
 </script>
 @endpush

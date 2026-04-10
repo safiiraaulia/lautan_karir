@@ -94,6 +94,7 @@ Route::middleware(['auth:admin'])->prefix('admin')->group(function () {
             Route::get('/', [SeleksiController::class, 'index'])->name('index'); 
             Route::get('/{lowongan}', [SeleksiController::class, 'show'])->name('show');
             Route::post('/{lamaran}/update-status', [SeleksiController::class, 'updateStatus'])->name('updateStatus');
+            Route::put('/{lamaran}/kesimpulan', [SeleksiController::class, 'updateKesimpulan'])->name('updateKesimpulan');
             Route::post('/{lowongan}/simpan-ranking', [SeleksiController::class, 'simpanRanking'])->name('simpanRanking');
         });
        

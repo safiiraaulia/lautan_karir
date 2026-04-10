@@ -3,6 +3,8 @@
 @section('title', 'Dashboard Pelamar - Lautan Karir')
 
 @section('content')
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <div class="bg-navy text-white py-5 shadow-sm mb-n5" style="background: linear-gradient(135deg, #103783 0%, #4b6cb7 100%); padding-bottom: 100px !important;">
     <div class="container">
         <h2 class="fw-bold mb-1">Dashboard Saya</h2>
@@ -36,7 +38,6 @@
                 <div class="fw-bold text-dark">Ada Kabar Terbaru!</div>
                 <div class="small text-muted">Status lamaran posisi <strong>{{ $notifStatus->lowongan->posisi->nama_posisi }}</strong> telah diperbarui. Cek hasilnya di bawah!</div>
             </div>
-            {{-- Tombol X memicu fungsi untuk update database --}}
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" onclick="markNotificationsAsRead()"></button>
         </div>
     @endif
@@ -100,7 +101,8 @@
                 
                 <div class="card-body p-0">
                     @if($lamarans->count() > 0)
-                        @php $sudahTes = \App\Models\JawabanTes::where('pelamar_id', $pelamar->id_pelamar)->exists(); @endphp
+                        {{-- Cek keberadaan jawaban tes secara global untuk pelamar ini --}}
+                        @php $sudahTesGlobal = \App\Models\JawabanTes::where('pelamar_id', $pelamar->id_pelamar)->exists(); @endphp
                         <div class="table-responsive">
                             <table class="table table-hover align-middle mb-0">
                                 <thead class="bg-light text-secondary small text-uppercase">
@@ -119,6 +121,8 @@
                                                 'Proses Seleksi' => ['cl' => 'bg-soft-warning text-warning-dark', 'ic' => 'fas fa-clock'],
                                                 default          => ['cl' => 'bg-soft-primary text-primary', 'ic' => 'fas fa-spinner fa-spin'],
                                             };
+                                            // LOGIKA CEK TANGGAL TUTUP
+                                            $isClosed = now() > $lamaran->lowongan->tgl_tutup;
                                         @endphp
                                         <tr>
                                             <td class="ps-4 py-3">
@@ -132,11 +136,19 @@
                                                         <i class="{{ $style['ic'] }} me-1"></i> {{ $lamaran->status }}
                                                     </span>
 
-                                                    @if(!$sudahTes)
-                                                        <a href="{{ route('pelamar.tes.index') }}" class="btn btn-xs btn-navy rounded-pill px-3 py-1 fw-bold shadow-sm pulse-button" style="font-size: 10px;">
-                                                            <i class="fas fa-pen-alt me-1"></i> Kerjakan Tes
-                                                        </a>
+                                                    @if(!$sudahTesGlobal)
+                                                        {{-- JIKA BELUM TES, CEK STATUS LOWONGAN --}}
+                                                        @if($isClosed)
+                                                            <button type="button" class="btn btn-xs btn-secondary rounded-pill px-3 py-1 fw-bold shadow-sm" style="font-size: 10px;" onclick="showClosedWarning()">
+                                                                <i class="fas fa-lock me-1"></i> Kerjakan Tes
+                                                            </button>
+                                                        @else
+                                                            <a href="{{ route('pelamar.tes.index') }}" class="btn btn-xs btn-navy rounded-pill px-3 py-1 fw-bold shadow-sm pulse-button" style="font-size: 10px;">
+                                                                <i class="fas fa-pen-alt me-1"></i> Kerjakan Tes
+                                                            </a>
+                                                        @endif
                                                     @else
+                                                        {{-- TAMPILAN SESUAI SCREENSHOT image_5cf31e.png --}}
                                                         <span class="badge bg-soft-success text-success rounded-pill px-3" style="font-size: 10px;">
                                                             <i class="fas fa-check-circle me-1"></i> Psikotes Selesai
                                                         </span>
@@ -175,9 +187,26 @@
             }
         });
     }
-    window.onload = function() {
-        markNotificationsAsRead();
-    };
+
+    // FUNGSI PERINGATAN LOWONGAN TUTUP
+    function showClosedWarning() {
+    Swal.fire({
+        title: 'Akses Tes Ditutup',
+        text: 'Maaf, periode pendaftaran untuk lowongan ini telah berakhir. Pengerjaan tes sudah tidak tersedia.',
+        icon: 'warning',
+        confirmButtonColor: '#103783',
+        confirmButtonText: 'Saya Mengerti',
+        showClass: {
+            popup: 'animate__animated animate__fadeInDown'
+        },
+        hideClass: {
+            popup: 'animate__animated animate__fadeOutUp'
+        },
+        customClass: {
+            confirmButton: 'rounded-pill px-4 py-2 fw-bold'
+        }
+    });
+}
 </script>
 
 <style>

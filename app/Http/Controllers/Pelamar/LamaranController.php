@@ -52,7 +52,6 @@ class LamaranController extends Controller
     {
         $pelamar = Auth::guard('pelamar')->user();
 
-        // Validasi agar tidak ada jawaban yang kosong
         $request->validate([
             'jawaban' => 'required|array', 
         ], [
@@ -87,7 +86,7 @@ class LamaranController extends Controller
             });
 
             return redirect()->route('pelamar.dashboard')
-                             ->with('success', 'Lamaran berhasil dikirim! Silakan pantau status di dashboard.');
+                             ->with('success', 'Lamaran berhasil dikirim! Silahkan kerjakan tes dan pantau status lowongan di dashboard.');
 
         } catch (\Exception $e) {
             // Jika ada error (misal koneksi DB), batalkan semua proses

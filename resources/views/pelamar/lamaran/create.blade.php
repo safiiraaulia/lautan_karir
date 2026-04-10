@@ -6,7 +6,7 @@
 {{-- Hero Header --}}
 <div class="bg-navy text-white py-5 mb-n5 shadow-sm" style="background: linear-gradient(135deg, #103783 0%, #4b6cb7 100%); padding-bottom: 80px !important;">
     <div class="container text-center">
-        <h3 class="fw-bold mb-1">Seleksi Administrasi</h3>
+        <h3 class="fw-bold mb-1">Formulir Administrasi</h3>
         <p class="opacity-75 mb-0">Mohon lengkapi data kualifikasi berikut sesuai dengan kondisi Anda yang sebenarnya.</p>
     </div>
 </div>
